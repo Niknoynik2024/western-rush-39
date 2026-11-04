@@ -1,0 +1,17 @@
+; Western Rush RP Mobile - Godot 4
+config_version=5
+
+[application]
+config/name="Western Rush RP Mobile"
+run/main_scene="res://scenes/kld_map.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/description="Open-world roleplay prototype set in a Kaliningrad-inspired city."
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
