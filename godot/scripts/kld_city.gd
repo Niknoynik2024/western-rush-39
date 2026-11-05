@@ -20,6 +20,9 @@ var mission_done := false
 var pedestrian_nodes: Array[Node3D] = []
 var pedestrian_origins: Array[Vector3] = []
 var pedestrian_time := 0.0
+var vehicle_speed := 0.0
+var touch_buttons: Dictionary = {}
+var touch_hint: Label
 
 func _ready() -> void:
     _setup_input()
@@ -30,8 +33,9 @@ func _ready() -> void:
     _build_ui()
 
 func _setup_input() -> void:
-    if not InputMap.has_action("sprint"):
-        InputMap.add_action("sprint")
+    for action_name in ["sprint", "interact"]:
+        if not InputMap.has_action(action_name):
+            InputMap.add_action(action_name)
     var key_bindings := {
         "ui_up": [KEY_W],
         "ui_down": [KEY_S],
@@ -503,19 +507,20 @@ func _build_ui() -> void:
     layer.add_child(title)
 
     var hint := Label.new()
-    hint.text = "Слева — движение • СПРИНТ справа"
+    hint.text = "Слева — движение • справа — действия"
     hint.position = Vector2(20, 102)
     hint.add_theme_font_size_override("font_size", 15)
     hint.add_theme_color_override("font_color", Color("#f2d6a2"))
     layer.add_child(hint)
+    touch_hint = hint
 
     # Large on-screen buttons support simultaneous multi-touch on Android.
-    _add_touch_button(layer, "▲", "ui_up", 0.0, 1.0, 92, -218, 68, 68)
-    _add_touch_button(layer, "◀", "ui_left", 0.0, 1.0, 20, -146, 68, 68)
-    _add_touch_button(layer, "▶", "ui_right", 0.0, 1.0, 164, -146, 68, 68)
-    _add_touch_button(layer, "▼", "ui_down", 0.0, 1.0, 92, -74, 68, 68)
-    _add_touch_button(layer, "БЕГ", "sprint", 1.0, 1.0, -142, -112, 118, 88)
-    _add_touch_button(layer, "E • АВТО", "interact", 1.0, 1.0, -142, -208, 118, 76)
+    touch_buttons["up"] = _add_touch_button(layer, "▲", "ui_up", 0.0, 1.0, 92, -218, 68, 68)
+    touch_buttons["left"] = _add_touch_button(layer, "◀", "ui_left", 0.0, 1.0, 20, -146, 68, 68)
+    touch_buttons["right"] = _add_touch_button(layer, "▶", "ui_right", 0.0, 1.0, 164, -146, 68, 68)
+    touch_buttons["down"] = _add_touch_button(layer, "▼", "ui_down", 0.0, 1.0, 92, -74, 68, 68)
+    touch_buttons["sprint"] = _add_touch_button(layer, "БЕГ", "sprint", 1.0, 1.0, -142, -112, 118, 88)
+    touch_buttons["interact"] = _add_touch_button(layer, "E • АВТО", "interact", 1.0, 1.0, -142, -208, 118, 76)
 
     mission_label = Label.new()
     mission_label.text = "ЗАДАНИЕ: Найди машину и садись за руль"
@@ -525,7 +530,7 @@ func _build_ui() -> void:
     layer.add_child(mission_label)
 
 
-func _add_touch_button(layer: CanvasLayer, caption: String, action: String, anchor_x: float, anchor_y: float, left: float, top: float, width: float, height: float) -> void:
+func _add_touch_button(layer: CanvasLayer, caption: String, action: String, anchor_x: float, anchor_y: float, left: float, top: float, width: float, height: float) -> Button:
     var button := Button.new()
     button.text = caption
     button.anchor_left = anchor_x
@@ -537,12 +542,24 @@ func _add_touch_button(layer: CanvasLayer, caption: String, action: String, anch
     button.offset_right = left + width
     button.offset_bottom = top + height
     button.focus_mode = Control.FOCUS_NONE
-    button.add_theme_font_size_override("font_size", 24)
+    button.add_theme_font_size_override("font_size", 22)
     button.add_theme_color_override("font_color", Color.WHITE)
-    button.modulate = Color(1, 1, 1, 0.88)
+    button.custom_minimum_size = Vector2(width, height)
     layer.add_child(button)
     button.button_down.connect(_press_action.bind(action))
     button.button_up.connect(_release_action.bind(action))
+    return button
+
+
+func _update_touch_mode() -> void:
+    if touch_buttons.is_empty():
+        return
+    touch_buttons["up"].text = "ГАЗ" if in_vehicle else "▲"
+    touch_buttons["down"].text = "ТОРМ" if in_vehicle else "▼"
+    touch_buttons["left"].text = "РУЛЬ ◀" if in_vehicle else "◀"
+    touch_buttons["right"].text = "РУЛЬ ▶" if in_vehicle else "▶"
+    touch_buttons["sprint"].visible = not in_vehicle
+    touch_buttons["interact"].text = "ВЫЙТИ" if in_vehicle else "СЕСТЬ В АВТО"
 
 
 func _press_action(action: String) -> void:
@@ -564,23 +581,35 @@ func _physics_process(delta: float) -> void:
             player_visual.visible = false
             vehicle_visual.visible = true
             mission_label.text = "ЗАДАНИЕ: Доедь до остановки у жилого квартала"
+            _update_touch_mode()
         elif in_vehicle:
             in_vehicle = false
             player_visual.visible = true
             player.global_position = vehicle_visual.global_position + Vector3(2.5, 1.1, 0)
+            vehicle_speed = 0.0
             mission_label.text = "ВЫШЕЛ ИЗ МАШИНЫ • Нажми E рядом с авто"
+            _update_touch_mode()
 
-    var direction := Vector3.ZERO
-    direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
-    direction.z = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
-    direction = direction.normalized()
-
-    var move_speed := 22.0 if in_vehicle else (12.0 if Input.is_action_pressed("sprint") else 7.0)
-    player.velocity.x = direction.x * move_speed
-    player.velocity.z = direction.z * move_speed
-
-    if direction.length_squared() > 0.001:
-        player.rotation.y = lerp_angle(player.rotation.y, atan2(direction.x, -direction.z), delta * 8.0)
+    if in_vehicle:
+        var throttle := Input.get_action_strength("ui_up") - Input.get_action_strength("ui_down")
+        var steering := Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+        var target_speed := throttle * (26.0 if throttle >= 0.0 else 9.0)
+        vehicle_speed = move_toward(vehicle_speed, target_speed, (16.0 if throttle != 0.0 else 9.0) * delta)
+        if abs(vehicle_speed) > 0.15:
+            player.rotation.y -= steering * delta * 1.8 * clamp(abs(vehicle_speed) / 12.0, 0.25, 1.0) * sign(vehicle_speed)
+        var forward := -player.global_transform.basis.z
+        player.velocity.x = forward.x * vehicle_speed
+        player.velocity.z = forward.z * vehicle_speed
+    else:
+        var direction := Vector3.ZERO
+        direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+        direction.z = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
+        direction = direction.normalized()
+        var move_speed := 12.0 if Input.is_action_pressed("sprint") else 7.0
+        player.velocity.x = direction.x * move_speed
+        player.velocity.z = direction.z * move_speed
+        if direction.length_squared() > 0.001:
+            player.rotation.y = lerp_angle(player.rotation.y, atan2(direction.x, -direction.z), delta * 8.0)
 
     if not player.is_on_floor():
         player.velocity.y -= 22.0 * delta
