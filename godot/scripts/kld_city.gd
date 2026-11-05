@@ -151,6 +151,7 @@ func _build_world() -> void:
     _build_cathedral()
     _build_fish_village()
     _build_street_details()
+    _build_neighborhood_life()
 
     for x in range(-190, 191, 20):
         _visual_box(self, "Road_Marking", Vector3(x, 0.13, -48), Vector3(8, 0.025, 0.35), Color("#e6dfc9"))
@@ -602,3 +603,61 @@ func _build_street_details() -> void:
     for sign_x in [-114.0, -96.0, 19.0, 37.0]:
         _visual_box(self, "Crossing_Sign_Pole", Vector3(sign_x, 3.0, -124.0), Vector3(0.12, 6.0, 0.12), signal_dark)
         _visual_box(self, "Crossing_Sign_Plate", Vector3(sign_x, 5.8, -124.0), Vector3(1.1, 1.1, 0.12), Color("#e7e5d8"))
+
+
+func _build_neighborhood_life() -> void:
+    # Playable-feeling residential block: courtyard, parking, shops, bus stop and street furniture.
+    var asphalt := Color("#34393d")
+    var concrete := Color("#aaa79d")
+    var brick := Color("#aa9882")
+    var dark_trim := Color("#554d45")
+    var glass := Color("#58717b")
+    var green := Color("#55724d")
+    var white := Color("#e7e1d4")
+
+    # Small local access road and parking bays in the southern residential quarter.
+    _visual_box(self, "Residential_Access_Road", Vector3(112, 0.18, 78), Vector3(92, 0.16, 12), asphalt)
+    _visual_box(self, "Residential_Parking_Lot", Vector3(112, 0.22, 94), Vector3(66, 0.12, 22), Color("#777a78"))
+    for x in range(82, 144, 10):
+        _visual_box(self, "Parking_Bay_Line", Vector3(float(x), 0.31, 94), Vector3(0.16, 0.035, 18), white)
+    _visual_box(self, "Parking_Aisle_Line", Vector3(112, 0.31, 84), Vector3(64, 0.035, 0.18), white)
+
+    # Residential courtyard with a paved centre, lawn, benches and trees.
+    _visual_box(self, "Residential_Courtyard", Vector3(34, 0.18, 92), Vector3(54, 0.24, 42), Color("#8f9684"))
+    _visual_box(self, "Courtyard_Lawn", Vector3(34, 0.34, 92), Vector3(28, 0.12, 20), green)
+    for tree_x in [13.0, 55.0]:
+        for tree_z in [77.0, 107.0]:
+            _visual_box(self, "Courtyard_Tree_Trunk", Vector3(tree_x, 2.6, tree_z), Vector3(0.5, 5.2, 0.5), Color("#66513c"))
+            _visual_box(self, "Courtyard_Tree_Crown", Vector3(tree_x, 5.8, tree_z), Vector3(4.5, 4.5, 4.5), Color("#486b48"))
+    for bench_x in [24.0, 44.0]:
+        _visual_box(self, "Courtyard_Bench_Seat", Vector3(bench_x, 0.85, 92), Vector3(3.2, 0.25, 0.75), Color("#765b43"))
+        _visual_box(self, "Courtyard_Bench_Legs", Vector3(bench_x, 0.48, 92), Vector3(2.8, 0.65, 0.16), dark_trim)
+
+    # Low-rise neighborhood shops with clear storefront glazing and sign bands.
+    var shop_positions := [Vector3(78, 5.5, 57), Vector3(98, 6.5, 57), Vector3(118, 5.5, 57)]
+    var shop_names := ["ПРОДУКТЫ", "АПТЕКА", "МАГАЗИН"]
+    for i in range(shop_positions.size()):
+        var p: Vector3 = shop_positions[i]
+        _building_box(self, "Neighborhood_Shop", p, Vector3(16, p.y * 2.0, 12), [brick, Color("#c2b6a3"), Color("#b3aaa0")][i])
+        _visual_box(self, "Shopfront_Glass", Vector3(p.x, 2.3, p.z - 6.12), Vector3(9.0, 3.2, 0.12), glass)
+        _visual_box(self, "Shopfront_Door", Vector3(p.x + 5.5, 2.1, p.z - 6.2), Vector3(1.4, 3.6, 0.16), dark_trim)
+        _visual_box(self, "Shop_Sign_Band", Vector3(p.x, 4.5, p.z - 6.25), Vector3(12.0, 0.65, 0.2), Color("#e0d3b8"))
+        _label(self, shop_names[i], Vector3(p.x, 5.0, p.z - 6.6), Color("#3d4142"))
+
+    # Covered bus shelter, stop pole and bench beside the local access road.
+    _visual_box(self, "Neighborhood_Bus_Stop_Base", Vector3(62, 0.38, 72), Vector3(8, 0.25, 3), concrete)
+    _visual_box(self, "Neighborhood_Bus_Stop_Roof", Vector3(62, 3.0, 72), Vector3(8, 0.25, 3), dark_trim)
+    for x in [58.5, 65.5]:
+        _visual_box(self, "Neighborhood_Bus_Stop_Support", Vector3(x, 1.7, 72), Vector3(0.16, 2.8, 0.16), dark_trim)
+    _visual_box(self, "Neighborhood_Bus_Stop_Glass", Vector3(62, 1.8, 73.35), Vector3(6.5, 2.4, 0.08), glass)
+    _visual_box(self, "Neighborhood_Bus_Stop_Bench", Vector3(62, 0.9, 71.2), Vector3(4.0, 0.25, 0.7), Color("#765b43"))
+    _visual_box(self, "Bus_Stop_Pole", Vector3(68, 2.0, 69), Vector3(0.12, 4.0, 0.12), dark_trim)
+    _visual_box(self, "Bus_Stop_Sign", Vector3(68, 4.0, 69), Vector3(0.8, 0.8, 0.12), Color("#4c7892"))
+
+    # Waste/recycling point and bicycle racks add recognizable street-level detail.
+    _visual_box(self, "Recycling_Bin", Vector3(78, 0.9, 75), Vector3(1.2, 1.8, 1.2), Color("#557b67"))
+    _visual_box(self, "Waste_Bin", Vector3(81, 0.8, 75), Vector3(0.9, 1.6, 0.9), Color("#555d63"))
+    for rack_x in [86.0, 88.0, 90.0]:
+        _visual_box(self, "Bicycle_Rack", Vector3(rack_x, 0.8, 72), Vector3(0.12, 1.2, 1.2), Color("#555d63"))
+
+    _label(self, "ЖИЛОЙ КВАРТАЛ • МАГАЗИНЫ • ОСТАНОВКА", Vector3(92, 20, 48), Color("#f0d5a2"))
