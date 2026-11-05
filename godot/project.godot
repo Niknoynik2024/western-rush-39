@@ -8,6 +8,7 @@ config/features=PackedStringArray("4.3", "GL Compatibility")
 config/description="Open-world roleplay prototype set in a Kaliningrad-inspired city."
 
 [display]
+window/handheld/orientation=1
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
