@@ -138,8 +138,6 @@ func _build_world() -> void:
     _visual_box(self, "Victory_Square", Vector3(-25, 0.08, -80), Vector3(54, 0.2, 44), Color("#a9a79c"))
     _visual_box(self, "Square_Fountain", Vector3(-25, 0.35, -80), Vector3(8, 0.5, 8), Color("#6e9da8"))
     _landmark("Администрация", Vector3(-25, 7, -105), Vector3(18, 14, 12), BUILDING_C)
-    _landmark("Кафедральный собор", Vector3(-65, 11, 18), Vector3(15, 22, 18), Color("#a58e72"))
-    _landmark("Рыбная деревня", Vector3(-8, 5, 45), Vector3(42, 10, 16), Color("#c0a27c"))
     _landmark("Автовокзал", Vector3(80, 5, 165), Vector3(34, 10, 18), BUILDING_B)
     _landmark("Аэропорт", Vector3(-185, 5, -185), Vector3(54, 10, 24), BUILDING_B)
     _landmark("Больница", Vector3(125, 6, -165), Vector3(30, 12, 22), Color("#d6d6cf"))
@@ -147,6 +145,10 @@ func _build_world() -> void:
 
     _build_victory_square()
     _build_mira_avenue()
+    _build_bridges()
+    _build_pregolya_waterfront()
+    _build_cathedral()
+    _build_fish_village()
 
     for x in range(-190, 191, 20):
         _visual_box(self, "Road_Marking", Vector3(x, 0.13, -48), Vector3(8, 0.025, 0.35), Color("#e6dfc9"))
@@ -269,6 +271,102 @@ func _build_mira_avenue() -> void:
         for support_x in [-2.8, 2.8]:
             _visual_box(self, "Prospect_Mira_Bus_Stop_Support", Vector3(stop_x + support_x, 1.7, -99.0), Vector3(0.18, 2.8, 0.18), dark_stone)
     _label(self, "ПРОСПЕКТ МИРА", Vector3(-45, 19, -130), Color("#f0d5a2"))
+
+func _build_bridges() -> void:
+    # Three drivable/walkable crossings with a collision deck and safe pedestrian rails.
+    for bridge_x in [-115.0, 18.0, 125.0]:
+        var deck := StaticBody3D.new()
+        deck.name = "Bridge_Deck_Collision"
+        deck.position = Vector3(bridge_x, 0.72, 8)
+        add_child(deck)
+        var deck_shape := CollisionShape3D.new()
+        var deck_box := BoxShape3D.new()
+        deck_box.size = Vector3(11.0, 0.35, 56.0)
+        deck_shape.shape = deck_box
+        deck.add_child(deck_shape)
+
+        for side_x in [-6.0, 6.0]:
+            _visual_box(self, "Bridge_Railing_Base", Vector3(bridge_x + side_x, 1.2, 8), Vector3(0.35, 1.0, 56), Color("#686d70"))
+            _visual_box(self, "Bridge_Railing_Top", Vector3(bridge_x + side_x, 2.0, 8), Vector3(0.2, 0.2, 56), Color("#aeb1ae"))
+        for lamp_z in [-14.0, 8.0, 30.0]:
+            for side_x in [-5.0, 5.0]:
+                _visual_box(self, "Bridge_Lamp_Post", Vector3(bridge_x + side_x, 3.0, lamp_z), Vector3(0.18, 4.0, 0.18), Color("#34383b"))
+                _visual_box(self, "Bridge_Lamp_Head", Vector3(bridge_x + side_x, 5.1, lamp_z), Vector3(0.8, 0.25, 0.8), Color("#e7d6a4"))
+
+
+func _build_pregolya_waterfront() -> void:
+    # Continuous promenades on both banks, with stone edging, stairs, benches and lights.
+    for bank_z in [-17.0, 33.0]:
+        _visual_box(self, "Pregolya_Promenade", Vector3(0, 0.18, bank_z), Vector3(500, 0.32, 7.0), Color("#aaa99f"))
+        _visual_box(self, "Pregolya_Quay_Edge", Vector3(0, 0.42, bank_z + (3.5 if bank_z < 0 else -3.5)), Vector3(500, 0.55, 0.7), Color("#777b7b"))
+        for x in range(-230, 231, 38):
+            _visual_box(self, "Embankment_Bench_Seat", Vector3(float(x), 0.82, bank_z), Vector3(3.4, 0.28, 0.8), Color("#765b43"))
+            _visual_box(self, "Embankment_Bench_Legs", Vector3(float(x), 0.48, bank_z), Vector3(2.8, 0.65, 0.18), Color("#55585a"))
+        for x in range(-215, 216, 28):
+            _visual_box(self, "Embankment_Lamp_Post", Vector3(float(x), 3.2, bank_z + 2.0), Vector3(0.18, 6.4, 0.18), Color("#34383b"))
+            _visual_box(self, "Embankment_Lamp_Head", Vector3(float(x), 6.5, bank_z + 2.0), Vector3(0.8, 0.28, 0.8), Color("#e7d6a4"))
+
+    # Small piers extend into the river beside the historic centre and Fish Village.
+    for pier_x in [-52.0, -25.0, 5.0, 42.0]:
+        _visual_box(self, "Pregolya_Wooden_Pier", Vector3(pier_x, 0.05, 8), Vector3(8, 0.35, 13), Color("#80684e"))
+        for rail_x in [-3.7, 3.7]:
+            _visual_box(self, "Pier_Railing", Vector3(pier_x + rail_x, 0.75, 8), Vector3(0.18, 1.2, 13), Color("#5e5144"))
+    _label(self, "НАБЕРЕЖНАЯ ПРЕГОЛИ", Vector3(-15, 8, -22), Color("#e4d5b8"))
+
+
+func _build_cathedral() -> void:
+    # Landmark-inspired silhouette of Königsberg Cathedral on Kneiphof island.
+    var brick := Color("#9b8068")
+    var roof := Color("#454b50")
+    _building_box(self, "Cathedral_Main_Nave", Vector3(-65, 8.5, 18), Vector3(29, 17, 13), brick)
+    _building_box(self, "Cathedral_Roof", Vector3(-65, 17.3, 18), Vector3(30, 1.0, 14), roof)
+    for tower_x in [-76.0, -54.0]:
+        _building_box(self, "Cathedral_Tower", Vector3(tower_x, 15.0, 10.5), Vector3(5.0, 30.0, 5.0), brick)
+        var spire := MeshInstance3D.new()
+        var spire_mesh := CylinderMesh.new()
+        spire_mesh.top_radius = 0.0
+        spire_mesh.bottom_radius = 3.2
+        spire_mesh.height = 8.0
+        spire_mesh.radial_segments = 4
+        spire.mesh = spire_mesh
+        spire.position = Vector3(tower_x, 34.0, 10.5)
+        spire.material_override = _mat(roof)
+        add_child(spire)
+    # Tall narrow windows on both long facades.
+    for window_x in range(-76, -53, 4):
+        _visual_box(self, "Cathedral_Window", Vector3(float(window_x), 10.0, 11.35), Vector3(1.2, 5.0, 0.12), Color("#343d46"))
+        _visual_box(self, "Cathedral_Window", Vector3(float(window_x), 10.0, 24.65), Vector3(1.2, 5.0, 0.12), Color("#343d46"))
+    _label(self, "КАФЕДРАЛЬНЫЙ СОБОР", Vector3(-65, 42, 5), Color("#f0d5a2"))
+
+
+func _build_fish_village() -> void:
+    # Historic waterfront quarter: varied gabled blocks, arcades and a small market square.
+    var plaster := [Color("#d5c5a8"), Color("#b8a28a"), Color("#d8d0bd"), Color("#aeb5b2")]
+    var timber := Color("#5c5147")
+    _visual_box(self, "Fish_Village_Square", Vector3(-5, 0.22, 48), Vector3(74, 0.3, 31), Color("#b7ae9d"))
+    var building_data := [
+        [Vector3(-32, 6, 39), Vector3(13, 12, 11)],
+        [Vector3(-14, 8, 42), Vector3(14, 16, 12)],
+        [Vector3(7, 7, 40), Vector3(15, 14, 12)],
+        [Vector3(29, 5.5, 43), Vector3(13, 11, 11)],
+        [Vector3(-25, 5, 62), Vector3(14, 10, 12)],
+        [Vector3(1, 6, 63), Vector3(16, 12, 13)],
+        [Vector3(25, 5, 62), Vector3(13, 10, 11)]
+    ]
+    for i in range(building_data.size()):
+        var data: Array = building_data[i]
+        var pos: Vector3 = data[0]
+        var size: Vector3 = data[1]
+        _building_box(self, "Fish_Village_Historic_House", pos, size, plaster[i % plaster.size()])
+        _visual_box(self, "Fish_Village_Roof", pos + Vector3(0, size.y / 2.0 + 0.8, 0), Vector3(size.x + 1.0, 1.6, size.z + 1.0), Color("#56504a"))
+        for beam_x in [-size.x * 0.3, size.x * 0.3]:
+            _visual_box(self, "Fish_Village_Timber_Detail", pos + Vector3(beam_x, 0, size.z / 2.0 + 0.08), Vector3(0.22, size.y - 1.0, 0.18), timber)
+    # Promenade-facing cafe terraces and planted tubs.
+    for x in [-28.0, -5.0, 18.0, 39.0]:
+        _visual_box(self, "Fish_Village_Terrace", Vector3(x, 0.65, 31.0), Vector3(7.0, 0.25, 3.5), Color("#80684e"))
+        _visual_box(self, "Fish_Village_Planter", Vector3(x, 0.7, 66.0), Vector3(2.2, 1.0, 2.2), Color("#65734f"))
+    _label(self, "РЫБНАЯ ДЕРЕВНЯ", Vector3(-5, 22, 30), Color("#f0d5a2"))
+
 
 func _district(title: String, origin: Vector3, columns: int, rows: int, spacing: float) -> void:
     var colors := [BUILDING_A, BUILDING_B, BUILDING_C]
