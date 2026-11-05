@@ -93,6 +93,9 @@ func _build_world() -> void:
     _landmark("Больница", Vector3(125, 6, -165), Vector3(30, 12, 22), Color("#d6d6cf"))
     _landmark("Полиция", Vector3(-155, 5, -95), Vector3(24, 10, 18), Color("#8798a7"))
 
+    _build_victory_square()
+    _build_mira_avenue()
+
     for x in range(-190, 191, 20):
         _visual_box(self, "Road_Marking", Vector3(x, 0.13, -48), Vector3(8, 0.025, 0.35), Color("#e6dfc9"))
     for z in range(-135, 136, 20):
@@ -163,6 +166,56 @@ func _build_central_district() -> void:
 
     _label(self, "ЦЕНТР • ПРОСПЕКТ МИРА", Vector3(-45, 24, -118), Color("#f0d5a2"))
     _label(self, "УЛИЦЫ И ПЕРЕКРЁСТКИ", Vector3(28, 22, -18), Color("#f0d5a2"))
+
+func _build_victory_square() -> void:
+    # Victory Square detail pass: paved plaza, fountain basin, monument and seating.
+    var stone := Color("#b9b5a8")
+    var dark_stone := Color("#777b7b")
+    var water := Color("#78aeb8")
+    _visual_box(self, "Victory_Square_Paving", Vector3(-25, 0.22, -80), Vector3(50, 0.16, 40), stone)
+    _visual_box(self, "Victory_Square_Fountain_Basin", Vector3(-25, 0.48, -80), Vector3(12, 0.35, 12), dark_stone)
+    _visual_box(self, "Victory_Square_Fountain_Water", Vector3(-25, 0.68, -80), Vector3(9.5, 0.08, 9.5), water)
+    _visual_box(self, "Victory_Square_Fountain_Core", Vector3(-25, 1.15, -80), Vector3(2.2, 1.0, 2.2), Color("#d0d0c7"))
+    # Low monument plinth and a simple vertical sculptural marker.
+    _visual_box(self, "Victory_Square_Monument_Platform", Vector3(-25, 0.55, -96), Vector3(10, 0.7, 5), dark_stone)
+    _visual_box(self, "Victory_Square_Monument", Vector3(-25, 4.0, -96), Vector3(2.0, 7.0, 2.0), Color("#c2b49b"))
+    for bench_x in [-43.0, -7.0]:
+        for bench_z in [-91.0, -69.0]:
+            _visual_box(self, "Victory_Square_Bench_Seat", Vector3(bench_x, 0.8, bench_z), Vector3(4.0, 0.35, 1.0), Color("#765b43"))
+            _visual_box(self, "Victory_Square_Bench_Legs", Vector3(bench_x, 0.4, bench_z), Vector3(3.5, 0.7, 0.25), dark_stone)
+    for tile_x in range(-47, 0, 6):
+        _visual_box(self, "Victory_Square_Paving_Line", Vector3(float(tile_x), 0.32, -80), Vector3(0.08, 0.025, 38), Color("#d8d2c3"))
+    _label(self, "ПЛОЩАДЬ ПОБЕДЫ", Vector3(-25, 15, -104), Color("#f3dfb8"))
+
+func _build_mira_avenue() -> void:
+    # Prospect Mira corridor: boulevard median, sidewalks, crossings and street furniture.
+    var asphalt := Color("#30363b")
+    var pavement := Color("#b6b2a6")
+    var lane_mark := Color("#e9e1cf")
+    _visual_box(self, "Prospect_Mira_Asphalt", Vector3(-45, 0.19, -112), Vector3(205, 0.12, 13), asphalt)
+    _visual_box(self, "Prospect_Mira_Median", Vector3(-45, 0.31, -112), Vector3(188, 0.18, 1.1), Color("#667653"))
+    for side_x in [-45.0]:
+        for offset in [-8.5, 8.5]:
+            _visual_box(self, "Prospect_Mira_Sidewalk", Vector3(side_x, 0.2, -112 + offset), Vector3(205, 0.22, 2.0), pavement)
+    for mark_x in range(-140, 56, 18):
+        _visual_box(self, "Prospect_Mira_Lane_Marking", Vector3(float(mark_x), 0.29, -112), Vector3(7.0, 0.025, 0.18), lane_mark)
+    # Tree planters and lamps alternate along the avenue edges.
+    for x in range(-130, 51, 30):
+        for z in [-121.0, -103.0]:
+            _visual_box(self, "Prospect_Mira_Tree_Planter", Vector3(float(x), 0.42, z), Vector3(4.0, 0.35, 4.0), Color("#777b61"))
+            _visual_box(self, "Prospect_Mira_Tree_Trunk", Vector3(float(x), 3.0, z), Vector3(0.55, 5.0, 0.55), Color("#66513c"))
+            _visual_box(self, "Prospect_Mira_Tree_Crown", Vector3(float(x), 6.0, z), Vector3(4.5, 4.5, 4.5), Color("#486b48"))
+    for x in [-115.0, -75.0, -35.0, 5.0, 45.0]:
+        for z in [-123.0, -101.0]:
+            _visual_box(self, "Prospect_Mira_Lamp_Post", Vector3(x, 4.0, z), Vector3(0.22, 8.0, 0.22), Color("#34383b"))
+            _visual_box(self, "Prospect_Mira_Lamp_Head", Vector3(x, 8.1, z), Vector3(1.0, 0.3, 0.55), Color("#e7d6a4"))
+    # Two simple public-transport stops facing the avenue.
+    for stop_x in [-88.0, 18.0]:
+        _visual_box(self, "Prospect_Mira_Bus_Stop_Base", Vector3(stop_x, 0.45, -99.0), Vector3(7.0, 0.25, 2.5), dark_stone)
+        _visual_box(self, "Prospect_Mira_Bus_Stop_Roof", Vector3(stop_x, 3.0, -99.0), Vector3(7.0, 0.3, 2.5), Color("#59636a"))
+        for support_x in [-2.8, 2.8]:
+            _visual_box(self, "Prospect_Mira_Bus_Stop_Support", Vector3(stop_x + support_x, 1.7, -99.0), Vector3(0.18, 2.8, 0.18), dark_stone)
+    _label(self, "ПРОСПЕКТ МИРА", Vector3(-45, 19, -130), Color("#f0d5a2"))
 
 func _district(title: String, origin: Vector3, columns: int, rows: int, spacing: float) -> void:
     var colors := [BUILDING_A, BUILDING_B, BUILDING_C]
