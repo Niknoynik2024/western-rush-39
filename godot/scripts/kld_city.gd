@@ -150,6 +150,7 @@ func _build_world() -> void:
     _build_kneiphof_island()
     _build_cathedral()
     _build_fish_village()
+    _build_street_details()
 
     for x in range(-190, 191, 20):
         _visual_box(self, "Road_Marking", Vector3(x, 0.13, -48), Vector3(8, 0.025, 0.35), Color("#e6dfc9"))
@@ -553,3 +554,51 @@ func _physics_process(delta: float) -> void:
         player.velocity.y = -0.2
 
     player.move_and_slide()
+
+
+func _build_street_details() -> void:
+    # Street-level visual pass: lane separators, stop lines, crossings and facade rhythm.
+    var lane_white := Color("#e8e3d5")
+    var lane_yellow := Color("#d6b85f")
+    var signal_dark := Color("#303438")
+    var signal_red := Color("#d94b43")
+    var signal_green := Color("#58a66b")
+    var glass := Color("#526a75")
+    var trim := Color("#6d6256")
+
+    # Dashed centre lines and edge lines on the main east-west avenue.
+    for x in range(-190, 191, 16):
+        _visual_box(self, "Mira_Centre_Dash", Vector3(float(x), 0.31, -112), Vector3(7.0, 0.035, 0.22), lane_yellow)
+    for z in [-119.0, -105.0]:
+        _visual_box(self, "Mira_Road_Edge_Line", Vector3(-45, 0.30, z), Vector3(205, 0.035, 0.16), lane_white)
+
+    # Stop bars and zebra crossings at the central intersections.
+    for cross_x in [-105.0, 28.0]:
+        for side_z in [-120.0, -104.0]:
+            _visual_box(self, "Intersection_Stop_Line", Vector3(cross_x, 0.32, side_z), Vector3(10.0, 0.035, 0.55), lane_white)
+        for stripe in range(8):
+            _visual_box(self, "Mira_Zebra_Stripe", Vector3(cross_x - 5.0 + float(stripe) * 1.4, 0.33, -112), Vector3(0.75, 0.04, 5.5), lane_white)
+
+    # Traffic-light poles and three stacked signal lenses at each major junction.
+    for signal_x in [-112.0, -98.0, 21.0, 35.0]:
+        for signal_z in [-122.0, -102.0]:
+            _visual_box(self, "Traffic_Signal_Pole", Vector3(signal_x, 3.0, signal_z), Vector3(0.18, 6.0, 0.18), signal_dark)
+            _visual_box(self, "Traffic_Signal_Housing", Vector3(signal_x, 6.2, signal_z), Vector3(0.72, 1.9, 0.42), signal_dark)
+            _visual_box(self, "Traffic_Signal_Red", Vector3(signal_x, 6.75, signal_z - 0.23), Vector3(0.32, 0.32, 0.08), signal_red)
+            _visual_box(self, "Traffic_Signal_Amber", Vector3(signal_x, 6.2, signal_z - 0.23), Vector3(0.32, 0.32, 0.08), lane_yellow)
+            _visual_box(self, "Traffic_Signal_Green", Vector3(signal_x, 5.65, signal_z - 0.23), Vector3(0.32, 0.32, 0.08), signal_green)
+
+    # Repeating shopfront glazing and stone piers along the Mira avenue blocks.
+    for facade_x in [-82.0, 47.0, 105.0]:
+        for facade_z in [-101.0, -83.0, -64.0, -46.0]:
+            _visual_box(self, "Historic_Facade_Ground_Floor", Vector3(facade_x, 2.2, facade_z), Vector3(8.0, 4.2, 0.18), trim)
+            for window_x in [-2.5, 0.0, 2.5]:
+                _visual_box(self, "Historic_Facade_Window", Vector3(facade_x + window_x, 2.4, facade_z - 0.12), Vector3(1.65, 2.5, 0.08), glass)
+            _visual_box(self, "Historic_Facade_Cornice", Vector3(facade_x, 4.55, facade_z), Vector3(9.0, 0.22, 0.35), Color("#d1c4ad"))
+            for pier_x in [-4.2, 4.2]:
+                _visual_box(self, "Historic_Facade_Pier", Vector3(facade_x + pier_x, 2.5, facade_z), Vector3(0.35, 4.8, 0.45), Color("#b9aa91"))
+
+    # Pedestrian crossing signs at both ends of the central avenue crossings.
+    for sign_x in [-114.0, -96.0, 19.0, 37.0]:
+        _visual_box(self, "Crossing_Sign_Pole", Vector3(sign_x, 3.0, -124.0), Vector3(0.12, 6.0, 0.12), signal_dark)
+        _visual_box(self, "Crossing_Sign_Plate", Vector3(sign_x, 5.8, -124.0), Vector3(1.1, 1.1, 0.12), Color("#e7e5d8"))
