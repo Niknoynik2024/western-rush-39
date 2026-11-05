@@ -11,11 +11,22 @@ const ACCENT := Color("#d69a45")
 
 var player: CharacterBody3D
 var camera: Camera3D
+var player_visual: MeshInstance3D
+var player_collision: CollisionShape3D
+var vehicle_visual: Node3D
+var in_vehicle := false
+var mission_label: Label
+var mission_done := false
+var pedestrian_nodes: Array[Node3D] = []
+var pedestrian_origins: Array[Vector3] = []
+var pedestrian_time := 0.0
 
 func _ready() -> void:
     _setup_input()
     _build_world()
     _build_player()
+    _build_vehicle()
+    _build_pedestrians()
     _build_ui()
 
 func _setup_input() -> void:
@@ -26,7 +37,8 @@ func _setup_input() -> void:
         "ui_down": [KEY_S],
         "ui_left": [KEY_A],
         "ui_right": [KEY_D],
-        "sprint": [KEY_SHIFT]
+        "sprint": [KEY_SHIFT],
+        "interact": [KEY_E]
     }
     for action_name in key_bindings:
         for key_code in key_bindings[action_name]:
@@ -451,20 +463,20 @@ func _build_player() -> void:
     player.position = Vector3(-25, 2, -55)
     add_child(player)
 
-    var capsule := MeshInstance3D.new()
+    player_visual = MeshInstance3D.new()
     var capsule_mesh := CapsuleMesh.new()
     capsule_mesh.radius = 0.7
     capsule_mesh.height = 2.2
-    capsule.mesh = capsule_mesh
-    capsule.material_override = _mat(ACCENT)
-    player.add_child(capsule)
+    player_visual.mesh = capsule_mesh
+    player_visual.material_override = _mat(ACCENT)
+    player.add_child(player_visual)
 
-    var collision := CollisionShape3D.new()
+    player_collision = CollisionShape3D.new()
     var capsule_shape := CapsuleShape3D.new()
     capsule_shape.radius = 0.7
     capsule_shape.height = 2.2
-    collision.shape = capsule_shape
-    player.add_child(collision)
+    player_collision.shape = capsule_shape
+    player.add_child(player_collision)
 
     camera = Camera3D.new()
     camera.position = Vector3(0, 8, 14)
@@ -503,6 +515,14 @@ func _build_ui() -> void:
     _add_touch_button(layer, "▶", "ui_right", 0.0, 1.0, 164, -146, 68, 68)
     _add_touch_button(layer, "▼", "ui_down", 0.0, 1.0, 92, -74, 68, 68)
     _add_touch_button(layer, "БЕГ", "sprint", 1.0, 1.0, -142, -112, 118, 88)
+    _add_touch_button(layer, "E • АВТО", "interact", 1.0, 1.0, -142, -208, 118, 76)
+
+    mission_label = Label.new()
+    mission_label.text = "ЗАДАНИЕ: Найди машину и садись за руль"
+    mission_label.position = Vector2(20, 145)
+    mission_label.add_theme_font_size_override("font_size", 17)
+    mission_label.add_theme_color_override("font_color", Color("#f2d6a2"))
+    layer.add_child(mission_label)
 
 
 func _add_touch_button(layer: CanvasLayer, caption: String, action: String, anchor_x: float, anchor_y: float, left: float, top: float, width: float, height: float) -> void:
@@ -537,12 +557,25 @@ func _physics_process(delta: float) -> void:
     if player == null:
         return
 
+    if Input.is_action_just_pressed("interact"):
+        in_vehicle = not in_vehicle
+        if in_vehicle:
+            player_visual.visible = false
+            player_collision.disabled = true
+            vehicle_visual.visible = true
+            mission_label.text = "ЗАДАНИЕ: Доедь до остановки у жилого квартала"
+        else:
+            player_visual.visible = true
+            player_collision.disabled = false
+            player.position += player.global_transform.basis.x * 2.2
+            mission_label.text = "ЗАДАНИЕ: Вернись к машине и продолжи поездку"
+
     var direction := Vector3.ZERO
     direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
     direction.z = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
     direction = direction.normalized()
 
-    var move_speed := 12.0 if Input.is_action_pressed("sprint") else 7.0
+    var move_speed := 22.0 if in_vehicle else (12.0 if Input.is_action_pressed("sprint") else 7.0)
     player.velocity.x = direction.x * move_speed
     player.velocity.z = direction.z * move_speed
 
@@ -555,6 +588,10 @@ func _physics_process(delta: float) -> void:
         player.velocity.y = -0.2
 
     player.move_and_slide()
+
+    if not mission_done and in_vehicle and player.global_position.distance_to(Vector3(62, 0, 72)) < 12.0:
+        mission_done = true
+        mission_label.text = "ЗАДАНИЕ ВЫПОЛНЕНО: Добрался до остановки! +500$"
 
 
 func _build_street_details() -> void:
@@ -661,3 +698,73 @@ func _build_neighborhood_life() -> void:
         _visual_box(self, "Bicycle_Rack", Vector3(rack_x, 0.8, 72), Vector3(0.12, 1.2, 1.2), Color("#555d63"))
 
     _label(self, "ЖИЛОЙ КВАРТАЛ • МАГАЗИНЫ • ОСТАНОВКА", Vector3(92, 20, 48), Color("#f0d5a2"))
+
+
+func _build_vehicle() -> void:
+    # A simple drivable starter car. The player controller becomes the vehicle controller while seated.
+    vehicle_visual = Node3D.new()
+    vehicle_visual.name = "Starter_Car"
+    vehicle_visual.position = Vector3(8, -1.0, 0)
+    vehicle_visual.visible = false
+    player.add_child(vehicle_visual)
+
+    _visual_box(vehicle_visual, "Car_Body", Vector3(0, 0.65, 0), Vector3(4.2, 1.0, 2.0), Color("#9c3030"))
+    _visual_box(vehicle_visual, "Car_Hood", Vector3(1.35, 0.95, 0), Vector3(1.25, 0.45, 1.9), Color("#b53a35"))
+    _visual_box(vehicle_visual, "Car_Cabin", Vector3(-0.45, 1.35, 0), Vector3(1.9, 0.9, 1.75), Color("#343f48"))
+    _visual_box(vehicle_visual, "Car_Windshield", Vector3(0.48, 1.4, 0), Vector3(0.08, 0.65, 1.55), Color("#78929b"))
+    for wheel_x in [-1.25, 1.25]:
+        for wheel_z in [-1.05, 1.05]:
+            var wheel := MeshInstance3D.new()
+            var wheel_mesh := CylinderMesh.new()
+            wheel_mesh.top_radius = 0.42
+            wheel_mesh.bottom_radius = 0.42
+            wheel_mesh.height = 0.28
+            wheel_mesh.radial_segments = 12
+            wheel.mesh = wheel_mesh
+            wheel.position = Vector3(wheel_x, 0.35, wheel_z)
+            wheel.rotation_degrees.z = 90
+            wheel.material_override = _mat(Color("#202326"))
+            vehicle_visual.add_child(wheel)
+    _label(vehicle_visual, "WESTERN RUSH", Vector3(0, 2.1, -0.9), Color("#f2d6a2"))
+
+
+func _build_pedestrians() -> void:
+    # Lightweight pedestrian figures with simple sidewalk patrol routes.
+    var starts := [
+        Vector3(-8, 1.1, -28), Vector3(12, 1.1, -18),
+        Vector3(52, 1.1, 67), Vector3(72, 1.1, 45),
+        Vector3(-42, 1.1, 28), Vector3(5, 1.1, 55)
+    ]
+    var clothes := [Color("#526b82"), Color("#8b5947"), Color("#536c50"), Color("#7a6689")]
+    for i in range(starts.size()):
+        var npc := Node3D.new()
+        npc.name = "Pedestrian_%02d" % i
+        npc.position = starts[i]
+        add_child(npc)
+        var torso := MeshInstance3D.new()
+        var torso_mesh := CapsuleMesh.new()
+        torso_mesh.radius = 0.38
+        torso_mesh.height = 1.25
+        torso.mesh = torso_mesh
+        torso.position.y = 0.15
+        torso.material_override = _mat(clothes[i % clothes.size()])
+        npc.add_child(torso)
+        var head := MeshInstance3D.new()
+        var head_mesh := SphereMesh.new()
+        head_mesh.radius = 0.25
+        head_mesh.height = 0.5
+        head.mesh = head_mesh
+        head.position.y = 1.0
+        head.material_override = _mat(Color("#c6a17f"))
+        npc.add_child(head)
+        pedestrian_nodes.append(npc)
+        pedestrian_origins.append(starts[i])
+
+
+func _process(delta: float) -> void:
+    pedestrian_time += delta
+    for i in range(pedestrian_nodes.size()):
+        var npc := pedestrian_nodes[i]
+        var origin := pedestrian_origins[i]
+        npc.position = origin + Vector3(sin(pedestrian_time * 0.45 + float(i)) * 3.0, 0, cos(pedestrian_time * 0.45 + float(i)) * 1.5)
+        npc.rotation.y = sin(pedestrian_time * 0.45 + float(i)) * 0.5
