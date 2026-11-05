@@ -44,6 +44,20 @@ func _label(parent: Node3D, value: String, pos: Vector3, color := Color.WHITE) -
     parent.add_child(item)
 
 func _build_world() -> void:
+    var world_environment := WorldEnvironment.new()
+    var environment := Environment.new()
+    environment.background_mode = Environment.BG_SKY
+    environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+    environment.ambient_light_color = Color("0.62, 0.68, 0.76")
+    environment.ambient_light_energy = 0.8
+    world_environment.environment = environment
+    add_child(world_environment)
+
+    var sunlight := DirectionalLight3D.new()
+    sunlight.rotation_degrees = Vector3(-48, -32, 0)
+    sunlight.light_energy = 1.15
+    sunlight.shadow_enabled = true
+    add_child(sunlight)
     var ground_body := StaticBody3D.new()
     ground_body.name = "GroundCollision"
     add_child(ground_body)
@@ -53,7 +67,7 @@ func _build_world() -> void:
     ground_shape.shape = ground_box
     ground_shape.position.y = -0.6
     ground_body.add_child(ground_shape)
-    _visual_box(self, "City_Ground", Vector3(0, -1.15, 0), Vector3(520, 1, 520), GRASS)
+    _visual_box(self, "City_Ground", Vector3(0, -0.6, 0), Vector3(520, 1, 520), GRASS)
 
     # Pregolya River and embankments.
     _visual_box(self, "Pregolya_River", Vector3(0, -0.35, 8), Vector3(520, 0.2, 42), WATER)
@@ -261,26 +275,64 @@ func _build_player() -> void:
 
 func _build_ui() -> void:
     var layer := CanvasLayer.new()
+    layer.name = "MobileHUD"
     add_child(layer)
+
     var panel := ColorRect.new()
-    panel.color = Color(0.04, 0.06, 0.08, 0.78)
+    panel.color = Color(0.04, 0.06, 0.08, 0.82)
     panel.position = Vector2(18, 18)
-    panel.size = Vector2(390, 88)
+    panel.size = Vector2(410, 104)
     layer.add_child(panel)
 
     var title := Label.new()
-    title.text = "WESTERN RUSH RP  |  KLD\nКалининград • тест карты 0.1"
-    title.position = Vector2(34, 28)
-    title.add_theme_font_size_override("font_size", 22)
+    title.text = "WESTERN RUSH RP  |  KLD"
+    title.position = Vector2(34, 26)
+    title.add_theme_font_size_override("font_size", 23)
     title.add_theme_color_override("font_color", Color.WHITE)
     layer.add_child(title)
 
+    var status := Label.new()
+    status.text = "КАЛИНИНГРАД  •  ГРАЖДАНСКИЙ СЕРВЕР  •  0 ₽"
+    status.position = Vector2(35, 64)
+    status.add_theme_font_size_override("font_size", 14)
+    status.add_theme_color_override("font_color", Color("#f2d6a2"))
+    layer.add_child(status)
+
     var hint := Label.new()
-    hint.text = "Управление: стрелки клавиатуры • экранное управление добавим далее"
-    hint.position = Vector2(20, 112)
+    hint.text = "Клавиатура: WASD / стрелки     Телефон: экранные кнопки"
+    hint.position = Vector2(20, 132)
     hint.add_theme_font_size_override("font_size", 15)
     hint.add_theme_color_override("font_color", Color("#f2d6a2"))
     layer.add_child(hint)
+
+    # Large touch controls remain visible on phones and tablets.
+    _add_touch_button(layer, "▲", "ui_up", Vector2(112, 510))
+    _add_touch_button(layer, "▼", "ui_down", Vector2(112, 620))
+    _add_touch_button(layer, "◀", "ui_left", Vector2(8, 565))
+    _add_touch_button(layer, "▶", "ui_right", Vector2(216, 565))
+    _add_touch_button(layer, "БЕГ", "sprint", Vector2(1050, 590), Vector2(150, 88))
+
+func _add_touch_button(layer: CanvasLayer, caption: String, action: String, button_position: Vector2, button_size := Vector2(96, 82)) -> void:
+    var button := Button.new()
+    button.text = caption
+    button.position = button_position
+    button.size = button_size
+    button.add_theme_font_size_override("font_size", 25)
+    button.add_theme_color_override("font_color", Color.WHITE)
+    button.add_theme_color_override("font_hover_color", Color("#ffe0a8"))
+    var normal := StyleBoxFlat.new()
+    normal.bg_color = Color(0.05, 0.08, 0.11, 0.72)
+    normal.border_color = Color(0.82, 0.62, 0.32, 0.9)
+    normal.set_border_width_all(2)
+    normal.set_corner_radius_all(16)
+    button.add_theme_stylebox_override("normal", normal)
+    var pressed := StyleBoxFlat.new()
+    pressed.bg_color = Color(0.55, 0.34, 0.12, 0.92)
+    pressed.set_corner_radius_all(16)
+    button.add_theme_stylebox_override("pressed", pressed)
+    button.button_down.connect(func(): Input.action_press(action))
+    button.button_up.connect(func(): Input.action_release(action))
+    layer.add_child(button)
 
 func _physics_process(delta: float) -> void:
     if player == null:
@@ -289,8 +341,9 @@ func _physics_process(delta: float) -> void:
     direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
     direction.z = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
     direction = direction.normalized()
-    player.velocity.x = direction.x * 9.0
-    player.velocity.z = direction.z * 9.0
+    var move_speed := 15.0 if Input.is_action_pressed("sprint") else 9.0
+    player.velocity.x = direction.x * move_speed
+    player.velocity.z = direction.z * move_speed
     if not player.is_on_floor():
         player.velocity.y -= 22.0 * delta
     else:
