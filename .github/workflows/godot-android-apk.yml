@@ -47,10 +47,20 @@ jobs:
           cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/4.3.stable/"
 
           mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [resource]
+          resource_name = "EditorSettings"
+          export/android/android_sdk_path = "/usr/lib/android-sdk"
+          export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"
+          EOF
           keytool -genkeypair -v -keystore "$HOME/.config/godot/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
 
-      - name: Import and validate Godot project
-        run: godot --headless --editor --path godot --quit
+      - name: Verify Android export toolchain
+        run: |
+          test -d /usr/lib/android-sdk/platforms/android-33
+          test -d /usr/lib/android-sdk/build-tools/33.0.2
+          test -x /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+          godot --headless --editor --path godot --quit
 
       - name: Export debug APK
         run: |
