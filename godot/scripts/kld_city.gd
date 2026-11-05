@@ -285,8 +285,8 @@ func _build_player() -> void:
     player.add_child(collision)
 
     camera = Camera3D.new()
-    camera.position = Vector3(0, 42, 34)
-    camera.rotation_degrees = Vector3(-52, 0, 0)
+    camera.position = Vector3(0, 8, 14)
+    camera.rotation_degrees = Vector3(-24, 0, 0)
     camera.current = true
     player.add_child(camera)
 
@@ -296,73 +296,80 @@ func _build_ui() -> void:
     add_child(layer)
 
     var panel := ColorRect.new()
-    panel.color = Color(0.04, 0.06, 0.08, 0.82)
+    panel.color = Color(0.04, 0.06, 0.08, 0.78)
     panel.position = Vector2(18, 18)
-    panel.size = Vector2(410, 104)
+    panel.size = Vector2(370, 76)
     layer.add_child(panel)
 
     var title := Label.new()
-    title.text = "WESTERN RUSH RP  |  KLD"
-    title.position = Vector2(34, 26)
-    title.add_theme_font_size_override("font_size", 23)
+    title.text = "WESTERN RUSH RP  |  KLD\nМобильная версия • тест 0.2"
+    title.position = Vector2(32, 26)
+    title.add_theme_font_size_override("font_size", 20)
     title.add_theme_color_override("font_color", Color.WHITE)
     layer.add_child(title)
 
-    var status := Label.new()
-    status.text = "КАЛИНИНГРАД  •  ГРАЖДАНСКИЙ СЕРВЕР  •  0 ₽"
-    status.position = Vector2(35, 64)
-    status.add_theme_font_size_override("font_size", 14)
-    status.add_theme_color_override("font_color", Color("#f2d6a2"))
-    layer.add_child(status)
-
     var hint := Label.new()
-    hint.text = "Клавиатура: WASD / стрелки     Телефон: экранные кнопки"
-    hint.position = Vector2(20, 132)
+    hint.text = "Слева — движение • СПРИНТ справа"
+    hint.position = Vector2(20, 102)
     hint.add_theme_font_size_override("font_size", 15)
     hint.add_theme_color_override("font_color", Color("#f2d6a2"))
     layer.add_child(hint)
 
-    # Large touch controls remain visible on phones and tablets.
-    _add_touch_button(layer, "▲", "ui_up", Vector2(112, 510))
-    _add_touch_button(layer, "▼", "ui_down", Vector2(112, 620))
-    _add_touch_button(layer, "◀", "ui_left", Vector2(8, 565))
-    _add_touch_button(layer, "▶", "ui_right", Vector2(216, 565))
-    _add_touch_button(layer, "БЕГ", "sprint", Vector2(1050, 590), Vector2(150, 88))
+    # Large on-screen buttons support simultaneous multi-touch on Android.
+    _add_touch_button(layer, "▲", "ui_up", 0.0, 1.0, 92, -218, 68, 68)
+    _add_touch_button(layer, "◀", "ui_left", 0.0, 1.0, 20, -146, 68, 68)
+    _add_touch_button(layer, "▶", "ui_right", 0.0, 1.0, 164, -146, 68, 68)
+    _add_touch_button(layer, "▼", "ui_down", 0.0, 1.0, 92, -74, 68, 68)
+    _add_touch_button(layer, "БЕГ", "sprint", 1.0, 1.0, -142, -112, 118, 88)
 
-func _add_touch_button(layer: CanvasLayer, caption: String, action: String, button_position: Vector2, button_size := Vector2(96, 82)) -> void:
+
+func _add_touch_button(layer: CanvasLayer, caption: String, action: String, anchor_x: float, anchor_y: float, left: float, top: float, width: float, height: float) -> void:
     var button := Button.new()
     button.text = caption
-    button.position = button_position
-    button.size = button_size
-    button.add_theme_font_size_override("font_size", 25)
+    button.anchor_left = anchor_x
+    button.anchor_right = anchor_x
+    button.anchor_top = anchor_y
+    button.anchor_bottom = anchor_y
+    button.offset_left = left
+    button.offset_top = top
+    button.offset_right = left + width
+    button.offset_bottom = top + height
+    button.focus_mode = Control.FOCUS_NONE
+    button.add_theme_font_size_override("font_size", 24)
     button.add_theme_color_override("font_color", Color.WHITE)
-    button.add_theme_color_override("font_hover_color", Color("#ffe0a8"))
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = Color(0.05, 0.08, 0.11, 0.72)
-    normal.border_color = Color(0.82, 0.62, 0.32, 0.9)
-    normal.set_border_width_all(2)
-    normal.set_corner_radius_all(16)
-    button.add_theme_stylebox_override("normal", normal)
-    var pressed := StyleBoxFlat.new()
-    pressed.bg_color = Color(0.55, 0.34, 0.12, 0.92)
-    pressed.set_corner_radius_all(16)
-    button.add_theme_stylebox_override("pressed", pressed)
-    button.button_down.connect(func(): Input.action_press(action))
-    button.button_up.connect(func(): Input.action_release(action))
+    button.modulate = Color(1, 1, 1, 0.88)
     layer.add_child(button)
+    button.button_down.connect(_press_action.bind(action))
+    button.button_up.connect(_release_action.bind(action))
+
+
+func _press_action(action: String) -> void:
+    Input.action_press(action)
+
+
+func _release_action(action: String) -> void:
+    Input.action_release(action)
+
 
 func _physics_process(delta: float) -> void:
     if player == null:
         return
+
     var direction := Vector3.ZERO
     direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
     direction.z = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
     direction = direction.normalized()
-    var move_speed := 15.0 if Input.is_action_pressed("sprint") else 9.0
+
+    var move_speed := 12.0 if Input.is_action_pressed("sprint") else 7.0
     player.velocity.x = direction.x * move_speed
     player.velocity.z = direction.z * move_speed
+
+    if direction.length_squared() > 0.001:
+        player.rotation.y = lerp_angle(player.rotation.y, atan2(direction.x, -direction.z), delta * 8.0)
+
     if not player.is_on_floor():
         player.velocity.y -= 22.0 * delta
     else:
         player.velocity.y = -0.2
+
     player.move_and_slide()
