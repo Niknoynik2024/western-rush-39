@@ -220,6 +220,7 @@ func _build_victory_square() -> void:
 
 func _build_mira_avenue() -> void:
     # Prospect Mira corridor: boulevard median, sidewalks, crossings and street furniture.
+    var dark_stone := Color("#777b7b")
     var asphalt := Color("#30363b")
     var pavement := Color("#b6b2a6")
     var lane_mark := Color("#e9e1cf")
