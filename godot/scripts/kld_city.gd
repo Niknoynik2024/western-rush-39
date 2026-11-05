@@ -147,6 +147,7 @@ func _build_world() -> void:
     _build_mira_avenue()
     _build_bridges()
     _build_pregolya_waterfront()
+    _build_kneiphof_island()
     _build_cathedral()
     _build_fish_village()
 
@@ -312,6 +313,65 @@ func _build_pregolya_waterfront() -> void:
         for rail_x in [-3.7, 3.7]:
             _visual_box(self, "Pier_Railing", Vector3(pier_x + rail_x, 0.75, 8), Vector3(0.18, 1.2, 13), Color("#5e5144"))
     _label(self, "НАБЕРЕЖНАЯ ПРЕГОЛИ", Vector3(-15, 8, -22), Color("#e4d5b8"))
+
+
+func _build_kneiphof_island() -> void:
+    # Raised, collidable Kneiphof island: the cathedral must stand on land, not over the river surface.
+    var island := StaticBody3D.new()
+    island.name = "Kneiphof_Island"
+    island.position = Vector3(-65, -0.08, 18)
+    add_child(island)
+
+    var island_shape := CollisionShape3D.new()
+    var island_box := BoxShape3D.new()
+    island_box.size = Vector3(48, 0.8, 44)
+    island_shape.shape = island_box
+    island.add_child(island_shape)
+
+    var island_mesh := MeshInstance3D.new()
+    island_mesh.name = "Kneiphof_Ground"
+    var ground_mesh := BoxMesh.new()
+    ground_mesh.size = Vector3(48, 0.8, 44)
+    island_mesh.mesh = ground_mesh
+    island_mesh.material_override = _mat(Color("#77796b"))
+    island.add_child(island_mesh)
+
+    # Stone pedestrian paths and planted areas around the cathedral.
+    _visual_box(self, "Kneiphof_Cathedral_Plaza", Vector3(-65, 0.36, 18), Vector3(38, 0.12, 32), Color("#aaa697"))
+    _visual_box(self, "Kneiphof_North_Path", Vector3(-65, 0.38, 1), Vector3(7, 0.12, 10), Color("#c1b9a8"))
+    _visual_box(self, "Kneiphof_South_Path", Vector3(-65, 0.38, 35), Vector3(7, 0.12, 8), Color("#c1b9a8"))
+
+    for tree_x in [-84.0, -46.0]:
+        for tree_z in [2.0, 34.0]:
+            _visual_box(self, "Kneiphof_Tree_Trunk", Vector3(tree_x, 2.2, tree_z), Vector3(0.55, 4.4, 0.55), Color("#66513c"))
+            _visual_box(self, "Kneiphof_Tree_Crown", Vector3(tree_x, 5.0, tree_z), Vector3(4.0, 4.0, 4.0), Color("#486b48"))
+
+    # Two short pedestrian approaches join the island to both river banks.
+    for bridge_z in [-9.5, 45.5]:
+        var approach := StaticBody3D.new()
+        approach.name = "Kneiphof_Pedestrian_Approach"
+        approach.position = Vector3(-65, 0.55, bridge_z)
+        add_child(approach)
+
+        var approach_shape := CollisionShape3D.new()
+        var approach_box := BoxShape3D.new()
+        approach_box.size = Vector3(7.0, 0.45, 15.0)
+        approach_shape.shape = approach_box
+        approach.add_child(approach_shape)
+
+        var approach_mesh := MeshInstance3D.new()
+        var deck_mesh := BoxMesh.new()
+        deck_mesh.size = Vector3(7.0, 0.45, 15.0)
+        approach_mesh.mesh = deck_mesh
+        approach_mesh.material_override = _mat(Color("#8c8980"))
+        approach.add_child(approach_mesh)
+
+        for rail_x in [-3.6, 3.6]:
+            _visual_box(self, "Kneiphof_Approach_Railing", Vector3(-65 + rail_x, 1.45, bridge_z), Vector3(0.18, 1.8, 15.0), Color("#686d70"))
+
+    # Pedestrian connection from the south approach towards the Fish Village quarter.
+    _visual_box(self, "Kneiphof_Fish_Village_Walkway", Vector3(-30, 0.34, 43), Vector3(62, 0.18, 5), Color("#b8b1a2"))
+    _label(self, "ОСТРОВ КНЕЙПХОФ", Vector3(-65, 8, -4), Color("#f0d5a2"))
 
 
 func _build_cathedral() -> void:
