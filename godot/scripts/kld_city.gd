@@ -80,6 +80,8 @@ func _build_world() -> void:
     _district("ЮЖНЫЙ РАЙОН", Vector3(80, 0, 115), 4, 3, 22)
     _district("ПРОМЗОНА", Vector3(155, 0, 205), 4, 2, 28)
 
+    _build_central_district()
+
     # Central square and schematic landmarks.
     _visual_box(self, "Victory_Square", Vector3(-25, 0.08, -80), Vector3(54, 0.2, 44), Color("#a9a79c"))
     _visual_box(self, "Square_Fountain", Vector3(-25, 0.35, -80), Vector3(8, 0.5, 8), Color("#6e9da8"))
@@ -98,6 +100,69 @@ func _build_world() -> void:
 
     _label(self, "КАЛИНИНГРАД • KLD", Vector3(0, 22, -72), ACCENT)
     _label(self, "РЕКА ПРЕГОЛЯ", Vector3(-20, 2, 8), Color("#d5eaf2"))
+
+func _build_central_district() -> void:
+    # Central KLD street grid: broad avenues, side streets and pedestrian crossings.
+    var asphalt := Color("#30363b")
+    var pavement := Color("#aaa99f")
+    var pale := Color("#e8dfc9")
+    for road in [
+        [Vector3(-45, 0.04, -112), Vector3(190, 0.18, 13)],
+        [Vector3(-45, 0.04, -22), Vector3(190, 0.18, 13)],
+        [Vector3(-105, 0.04, -67), Vector3(13, 0.18, 105)],
+        [Vector3(28, 0.04, -67), Vector3(13, 0.18, 105)],
+        [Vector3(-45, 0.04, -67), Vector3(13, 0.18, 105)]
+    ]:
+        _visual_box(self, "Central_Street", road[0], road[1], asphalt)
+
+    # Sidewalk strips frame the central streets.
+    for x in [-114.0, -96.0, 19.0, 37.0, -54.0, -36.0]:
+        _visual_box(self, "Central_Sidewalk", Vector3(x, 0.13, -67), Vector3(2.2, 0.22, 105), pavement)
+    for z in [-121.0, -103.0, -31.0, -13.0]:
+        _visual_box(self, "Central_Sidewalk", Vector3(-45, 0.13, z), Vector3(190, 0.22, 2.2), pavement)
+
+    # Crosswalks at the main intersections.
+    for z in [-22.0, -112.0]:
+        for stripe in range(7):
+            _visual_box(self, "Crosswalk_Stripe", Vector3(-5 + stripe * 2.0, 0.16, z), Vector3(1.0, 0.035, 9), pale)
+    for x in [-105.0, 28.0]:
+        for stripe in range(7):
+            _visual_box(self, "Crosswalk_Stripe", Vector3(x, 0.16, -75 + stripe * 2.0), Vector3(9, 0.035, 1.0), pale)
+
+    # Central blocks with varied building heights and muted historic-city colours.
+    var facades := [Color("#c4b59c"), Color("#aeb5b4"), Color("#d0c8b6"), Color("#988f83"), Color("#c7b7a4")]
+    var blocks := [
+        Vector3(-82, 0, -92), Vector3(-82, 0, -42),
+        Vector3(-12, 0, -92), Vector3(-12, 0, -42),
+        Vector3(62, 0, -92), Vector3(62, 0, -42)
+    ]
+    for b in range(blocks.size()):
+        var origin: Vector3 = blocks[b]
+        for row in range(2):
+            for col in range(2):
+                var h := 12.0 + float((b + row + col) % 4) * 3.0
+                var w := 13.0 + float((b + col) % 2) * 3.0
+                var d := 12.0 + float((b + row) % 2) * 3.0
+                var p := origin + Vector3(float(col) * 19.0, h / 2.0, float(row) * 19.0)
+                _visual_box(self, "Central_Historic_Building", p, Vector3(w, h, d), facades[(b + row + col) % facades.size()])
+
+    # Pocket park and street furniture near Victory Square.
+    _visual_box(self, "Central_Pocket_Park", Vector3(-25, 0.12, -80), Vector3(42, 0.24, 34), Color("#647b55"))
+    for tree_pos in [
+        Vector3(-42, 3, -94), Vector3(-8, 3, -94),
+        Vector3(-42, 3, -66), Vector3(-8, 3, -66)
+    ]:
+        _visual_box(self, "Park_Tree_Trunk", tree_pos, Vector3(1.0, 6, 1.0), Color("#66513c"))
+        _visual_box(self, "Park_Tree_Crown", tree_pos + Vector3(0, 4, 0), Vector3(5, 5, 5), Color("#486b48"))
+
+    # Street lamps along the main pedestrian streets.
+    for lamp_x in [-112.0, -94.0, 18.0, 36.0]:
+        for lamp_z in [-105.0, -65.0, -25.0]:
+            _visual_box(self, "Street_Lamp_Post", Vector3(lamp_x, 4, lamp_z), Vector3(0.25, 8, 0.25), Color("#34383b"))
+            _visual_box(self, "Street_Lamp", Vector3(lamp_x, 8.2, lamp_z), Vector3(1.2, 0.35, 1.2), Color("#e7d6a4"))
+
+    _label(self, "ЦЕНТР • ПРОСПЕКТ МИРА", Vector3(-45, 24, -118), Color("#f0d5a2"))
+    _label(self, "УЛИЦЫ И ПЕРЕКРЁСТКИ", Vector3(28, 22, -18), Color("#f0d5a2"))
 
 func _district(title: String, origin: Vector3, columns: int, rows: int, spacing: float) -> void:
     var colors := [BUILDING_A, BUILDING_B, BUILDING_C]
