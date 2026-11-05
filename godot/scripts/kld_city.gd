@@ -40,6 +40,27 @@ func _mat(color: Color) -> StandardMaterial3D:
     material.roughness = 0.92
     return material
 
+func _building_box(parent: Node3D, node_name: String, pos: Vector3, size: Vector3, color: Color) -> void:
+    # Solid building: visible mesh and matching collision so the player cannot walk through it.
+    var body := StaticBody3D.new()
+    body.name = node_name + "_Body"
+    body.position = pos
+    parent.add_child(body)
+
+    var collision := CollisionShape3D.new()
+    var shape := BoxShape3D.new()
+    shape.size = size
+    collision.shape = shape
+    body.add_child(collision)
+
+    var visual := MeshInstance3D.new()
+    visual.name = node_name
+    var mesh := BoxMesh.new()
+    mesh.size = size
+    visual.mesh = mesh
+    visual.material_override = _mat(color)
+    body.add_child(visual)
+
 func _visual_box(parent: Node3D, node_name: String, pos: Vector3, size: Vector3, color: Color) -> void:
     var item := MeshInstance3D.new()
     item.name = node_name
@@ -145,12 +166,12 @@ func _build_central_district() -> void:
         [Vector3(-45, 0.04, -22), Vector3(190, 0.18, 13)],
         [Vector3(-105, 0.04, -67), Vector3(13, 0.18, 105)],
         [Vector3(28, 0.04, -67), Vector3(13, 0.18, 105)],
-        [Vector3(-45, 0.04, -67), Vector3(13, 0.18, 105)]
+        [Vector3(95, 0.04, -67), Vector3(13, 0.18, 105)]
     ]:
         _visual_box(self, "Central_Street", road[0], road[1], asphalt)
 
     # Sidewalk strips frame the central streets.
-    for x in [-114.0, -96.0, 19.0, 37.0, -54.0, -36.0]:
+    for x in [-114.0, -96.0, 19.0, 37.0, 86.0, 104.0]:
         _visual_box(self, "Central_Sidewalk", Vector3(x, 0.13, -67), Vector3(2.2, 0.22, 105), pavement)
     for z in [-121.0, -103.0, -31.0, -13.0]:
         _visual_box(self, "Central_Sidewalk", Vector3(-45, 0.13, z), Vector3(190, 0.22, 2.2), pavement)
@@ -166,9 +187,9 @@ func _build_central_district() -> void:
     # Central blocks with varied building heights and muted historic-city colours.
     var facades := [Color("#c4b59c"), Color("#aeb5b4"), Color("#d0c8b6"), Color("#988f83"), Color("#c7b7a4")]
     var blocks := [
-        Vector3(-82, 0, -92), Vector3(-82, 0, -42),
-        Vector3(-12, 0, -92), Vector3(-12, 0, -42),
-        Vector3(62, 0, -92), Vector3(62, 0, -42)
+        Vector3(-82, 0, -92), Vector3(-82, 0, -55),
+        Vector3(47, 0, -92), Vector3(47, 0, -55),
+        Vector3(105, 0, -92), Vector3(105, 0, -55)
     ]
     for b in range(blocks.size()):
         var origin: Vector3 = blocks[b]
@@ -178,7 +199,7 @@ func _build_central_district() -> void:
                 var w := 13.0 + float((b + col) % 2) * 3.0
                 var d := 12.0 + float((b + row) % 2) * 3.0
                 var p := origin + Vector3(float(col) * 19.0, h / 2.0, float(row) * 19.0)
-                _visual_box(self, "Central_Historic_Building", p, Vector3(w, h, d), facades[(b + row + col) % facades.size()])
+                _building_box(self, "Central_Historic_Building", p, Vector3(w, h, d), facades[(b + row + col) % facades.size()])
 
     # Pocket park and street furniture near Victory Square.
     _visual_box(self, "Central_Pocket_Park", Vector3(-25, 0.12, -80), Vector3(42, 0.24, 34), Color("#647b55"))
@@ -257,11 +278,11 @@ func _district(title: String, origin: Vector3, columns: int, rows: int, spacing:
             var width := 12.0 + float((x + z) % 3) * 2.0
             var depth := 12.0 + float((x * 2 + z) % 3) * 2.0
             var pos := origin + Vector3(float(x) * spacing, height / 2.0, float(z) * spacing)
-            _visual_box(self, "City_Block_Building", pos, Vector3(width, height, depth), colors[(x + z) % colors.size()])
+            _building_box(self, "City_Block_Building", pos, Vector3(width, height, depth), colors[(x + z) % colors.size()])
     _label(self, title, origin + Vector3((columns - 1) * spacing / 2.0, 27, -12), ACCENT)
 
 func _landmark(title: String, pos: Vector3, size: Vector3, color: Color) -> void:
-    _visual_box(self, title + "_Building", pos, size, color)
+    _building_box(self, title + "_Building", pos, size, color)
     _label(self, title, pos + Vector3(0, size.y / 2.0 + 4, 0), Color.WHITE)
 
 func _build_player() -> void:
