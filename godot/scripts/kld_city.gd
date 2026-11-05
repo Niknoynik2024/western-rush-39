@@ -13,9 +13,26 @@ var player: CharacterBody3D
 var camera: Camera3D
 
 func _ready() -> void:
+    _setup_input()
     _build_world()
     _build_player()
     _build_ui()
+
+func _setup_input() -> void:
+    if not InputMap.has_action("sprint"):
+        InputMap.add_action("sprint")
+    var key_bindings := {
+        "ui_up": [KEY_W],
+        "ui_down": [KEY_S],
+        "ui_left": [KEY_A],
+        "ui_right": [KEY_D],
+        "sprint": [KEY_SHIFT]
+    }
+    for action_name in key_bindings:
+        for key_code in key_bindings[action_name]:
+            var event := InputEventKey.new()
+            event.physical_keycode = key_code
+            InputMap.action_add_event(action_name, event)
 
 func _mat(color: Color) -> StandardMaterial3D:
     var material := StandardMaterial3D.new()
@@ -48,7 +65,7 @@ func _build_world() -> void:
     var environment := Environment.new()
     environment.background_mode = Environment.BG_SKY
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-    environment.ambient_light_color = Color("0.62, 0.68, 0.76")
+    environment.ambient_light_color = Color(0.62, 0.68, 0.76)
     environment.ambient_light_energy = 0.8
     world_environment.environment = environment
     add_child(world_environment)
