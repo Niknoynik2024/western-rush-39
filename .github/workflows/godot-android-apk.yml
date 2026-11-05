@@ -22,6 +22,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Java, Android SDK packages and Godot export templates
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y openjdk-17-jdk unzip wget
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH="$JAVA_HOME/bin:$PATH"
+          echo "JAVA_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME/bin" >> "$GITHUB_PATH"
+
+          SDKMANAGER="$(find /usr/lib/android-sdk/cmdline-tools -name sdkmanager -type f | head -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "Android sdkmanager not found in the build image"
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-33" "build-tools;33.0.2" "platform-tools"
+
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.3.stable"
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz -O /tmp/godot-templates.tpz
+          mkdir -p /tmp/godot-templates
+          unzip -q /tmp/godot-templates.tpz -d /tmp/godot-templates
+          cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/4.3.stable/"
+
+          mkdir -p "$HOME/.config/godot"
+          keytool -genkeypair -v -keystore "$HOME/.config/godot/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Import and validate Godot project
         run: godot --headless --editor --path godot --quit
 
@@ -29,6 +56,7 @@ jobs:
         run: |
           mkdir -p build
           godot --headless --path godot --export-debug "Android" build/Western-Rush-RP.apk
+          test -s build/Western-Rush-RP.apk
 
       - name: Publish test APK
         uses: actions/upload-artifact@v4
