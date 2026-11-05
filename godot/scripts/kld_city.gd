@@ -23,6 +23,8 @@ var pedestrian_time := 0.0
 var vehicle_speed := 0.0
 var touch_buttons: Dictionary = {}
 var touch_hint: Label
+var speed_label: Label
+var camera_yaw := 0.0
 
 func _ready() -> void:
     _setup_input()
@@ -514,6 +516,19 @@ func _build_ui() -> void:
     layer.add_child(hint)
     touch_hint = hint
 
+    speed_label = Label.new()
+    speed_label.text = "0 KM/H"
+    speed_label.anchor_left = 1.0
+    speed_label.anchor_right = 1.0
+    speed_label.offset_left = -210
+    speed_label.offset_right = -20
+    speed_label.offset_top = 24
+    speed_label.offset_bottom = 76
+    speed_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    speed_label.add_theme_font_size_override("font_size", 30)
+    speed_label.add_theme_color_override("font_color", Color("#f2d6a2"))
+    layer.add_child(speed_label)
+
     # Large on-screen buttons support simultaneous multi-touch on Android.
     touch_buttons["up"] = _add_touch_button(layer, "▲", "ui_up", 0.0, 1.0, 92, -218, 68, 68)
     touch_buttons["left"] = _add_touch_button(layer, "◀", "ui_left", 0.0, 1.0, 20, -146, 68, 68)
@@ -570,6 +585,15 @@ func _release_action(action: String) -> void:
     Input.action_release(action)
 
 
+func _input(event: InputEvent) -> void:
+    # On Android, drag on the right side of the screen to rotate the third-person camera.
+    if event is InputEventScreenDrag and event.position.x > get_viewport().get_visible_rect().size.x * 0.38:
+        camera_yaw -= event.relative.x * 0.006
+        if camera != null and player != null:
+            camera.position = Vector3(0, 8, 14).rotated(Vector3.UP, camera_yaw)
+            camera.look_at(player.global_position + Vector3(0, 1.0, 0), Vector3.UP)
+
+
 func _physics_process(delta: float) -> void:
     if player == null:
         return
@@ -617,6 +641,8 @@ func _physics_process(delta: float) -> void:
         player.velocity.y = -0.2
 
     player.move_and_slide()
+    if speed_label != null:
+        speed_label.text = "%d KM/H" % int(abs(vehicle_speed) * 3.6) if in_vehicle else "0 KM/H"
     if in_vehicle:
         vehicle_visual.global_position = player.global_position + Vector3(0, -1.1, 0)
         vehicle_visual.global_rotation.y = player.global_rotation.y
