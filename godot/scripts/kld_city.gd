@@ -558,17 +558,17 @@ func _physics_process(delta: float) -> void:
         return
 
     if Input.is_action_just_pressed("interact"):
-        in_vehicle = not in_vehicle
-        if in_vehicle:
+        if not in_vehicle and player.global_position.distance_to(vehicle_visual.global_position) < 13.0:
+            in_vehicle = true
+            player.global_position = vehicle_visual.global_position + Vector3(0, 1.1, 0)
             player_visual.visible = false
-            player_collision.disabled = true
             vehicle_visual.visible = true
             mission_label.text = "ЗАДАНИЕ: Доедь до остановки у жилого квартала"
-        else:
+        elif in_vehicle:
+            in_vehicle = false
             player_visual.visible = true
-            player_collision.disabled = false
-            player.position += player.global_transform.basis.x * 2.2
-            mission_label.text = "ЗАДАНИЕ: Вернись к машине и продолжи поездку"
+            player.global_position = vehicle_visual.global_position + Vector3(2.5, 1.1, 0)
+            mission_label.text = "ВЫШЕЛ ИЗ МАШИНЫ • Нажми E рядом с авто"
 
     var direction := Vector3.ZERO
     direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
@@ -588,6 +588,9 @@ func _physics_process(delta: float) -> void:
         player.velocity.y = -0.2
 
     player.move_and_slide()
+    if in_vehicle:
+        vehicle_visual.global_position = player.global_position + Vector3(0, -1.1, 0)
+        vehicle_visual.global_rotation.y = player.global_rotation.y
 
     if not mission_done and in_vehicle and player.global_position.distance_to(Vector3(62, 0, 72)) < 12.0:
         mission_done = true
@@ -704,9 +707,9 @@ func _build_vehicle() -> void:
     # A simple drivable starter car. The player controller becomes the vehicle controller while seated.
     vehicle_visual = Node3D.new()
     vehicle_visual.name = "Starter_Car"
-    vehicle_visual.position = Vector3(8, -1.0, 0)
-    vehicle_visual.visible = false
-    player.add_child(vehicle_visual)
+    vehicle_visual.position = Vector3(-14, 0, -55)
+    vehicle_visual.visible = true
+    add_child(vehicle_visual)
 
     _visual_box(vehicle_visual, "Car_Body", Vector3(0, 0.65, 0), Vector3(4.2, 1.0, 2.0), Color("#9c3030"))
     _visual_box(vehicle_visual, "Car_Hood", Vector3(1.35, 0.95, 0), Vector3(1.25, 0.45, 1.9), Color("#b53a35"))
