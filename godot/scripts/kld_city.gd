@@ -153,8 +153,6 @@ func _build_world() -> void:
     _build_central_district()
 
     # Central square and schematic landmarks.
-    _visual_box(self, "Victory_Square", Vector3(-25, 0.08, -80), Vector3(54, 0.2, 44), Color("#a9a79c"))
-    _visual_box(self, "Square_Fountain", Vector3(-25, 0.35, -80), Vector3(8, 0.5, 8), Color("#6e9da8"))
     _landmark("Администрация", Vector3(-25, 7, -105), Vector3(18, 14, 12), BUILDING_C)
     _landmark("Автовокзал", Vector3(80, 5, 165), Vector3(34, 10, 18), BUILDING_B)
     _landmark("Аэропорт", Vector3(-185, 5, -185), Vector3(54, 10, 24), BUILDING_B)
@@ -225,7 +223,9 @@ func _build_central_district() -> void:
                 _building_box(self, "Central_Historic_Building", p, Vector3(w, h, d), facades[(b + row + col) % facades.size()])
 
     # Pocket park and street furniture near Victory Square.
-    _visual_box(self, "Central_Pocket_Park", Vector3(-25, 0.12, -80), Vector3(42, 0.24, 34), Color("#647b55"))
+    # Four planted corners keep the square open while preserving the existing tree layout.
+    for planter_pos in [Vector3(-42, 0.24, -94), Vector3(-8, 0.24, -94), Vector3(-42, 0.24, -66), Vector3(-8, 0.24, -66)]:
+        _visual_box(self, "Victory_Square_Planter", planter_pos, Vector3(8, 0.24, 8), Color("#647b55"))
     for tree_pos in [
         Vector3(-42, 3, -94), Vector3(-8, 3, -94),
         Vector3(-42, 3, -66), Vector3(-8, 3, -66)
@@ -248,6 +248,11 @@ func _build_victory_square() -> void:
     var dark_stone := Color("#777b7b")
     var water := Color("#78aeb8")
     _visual_box(self, "Victory_Square_Paving", Vector3(-25, 0.22, -80), Vector3(50, 0.16, 40), stone)
+    # Low stone edging defines the plaza perimeter without blocking pedestrians.
+    for edge_z in [-100.0, -60.0]:
+        _visual_box(self, "Victory_Square_Curb", Vector3(-25, 0.36, edge_z), Vector3(50, 0.18, 0.45), dark_stone)
+    for edge_x in [-50.0, 0.0]:
+        _visual_box(self, "Victory_Square_Curb", Vector3(edge_x, 0.36, -80), Vector3(0.45, 0.18, 40), dark_stone)
     _visual_box(self, "Victory_Square_Fountain_Basin", Vector3(-25, 0.48, -80), Vector3(12, 0.35, 12), dark_stone)
     _visual_box(self, "Victory_Square_Fountain_Water", Vector3(-25, 0.68, -80), Vector3(9.5, 0.08, 9.5), water)
     _visual_box(self, "Victory_Square_Fountain_Core", Vector3(-25, 1.15, -80), Vector3(2.2, 1.0, 2.2), Color("#d0d0c7"))
@@ -260,6 +265,8 @@ func _build_victory_square() -> void:
             _visual_box(self, "Victory_Square_Bench_Legs", Vector3(bench_x, 0.4, bench_z), Vector3(3.5, 0.7, 0.25), dark_stone)
     for tile_x in range(-47, 0, 6):
         _visual_box(self, "Victory_Square_Paving_Line", Vector3(float(tile_x), 0.32, -80), Vector3(0.08, 0.025, 38), Color("#d8d2c3"))
+    for tile_z in range(-98, -61, 6):
+        _visual_box(self, "Victory_Square_Paving_Line", Vector3(-25, 0.32, float(tile_z)), Vector3(48, 0.025, 0.08), Color("#d8d2c3"))
     _label(self, "ПЛОЩАДЬ ПОБЕДЫ", Vector3(-25, 15, -104), Color("#f3dfb8"))
 
 func _build_mira_avenue() -> void:
@@ -270,11 +277,9 @@ func _build_mira_avenue() -> void:
     var lane_mark := Color("#e9e1cf")
     _visual_box(self, "Prospect_Mira_Asphalt", Vector3(-45, 0.19, -112), Vector3(205, 0.12, 13), asphalt)
     _visual_box(self, "Prospect_Mira_Median", Vector3(-45, 0.31, -112), Vector3(188, 0.18, 1.1), Color("#667653"))
-    for side_x in [-45.0]:
-        for offset in [-8.5, 8.5]:
-            _visual_box(self, "Prospect_Mira_Sidewalk", Vector3(side_x, 0.2, -112 + offset), Vector3(205, 0.22, 2.0), pavement)
-    for mark_x in range(-140, 56, 18):
-        _visual_box(self, "Prospect_Mira_Lane_Marking", Vector3(float(mark_x), 0.29, -112), Vector3(7.0, 0.025, 0.18), lane_mark)
+    for avenue_center_x in [-45.0]:
+        for offset in [-12.5, 12.5]:
+            _visual_box(self, "Prospect_Mira_Sidewalk", Vector3(avenue_center_x, 0.2, -112 + offset), Vector3(205, 0.22, 3.0), pavement)
     # Tree planters and lamps alternate along the avenue edges.
     for x in range(-130, 51, 30):
         for z in [-121.0, -103.0]:
@@ -282,7 +287,7 @@ func _build_mira_avenue() -> void:
             _visual_box(self, "Prospect_Mira_Tree_Trunk", Vector3(float(x), 3.0, z), Vector3(0.55, 5.0, 0.55), Color("#66513c"))
             _visual_box(self, "Prospect_Mira_Tree_Crown", Vector3(float(x), 6.0, z), Vector3(4.5, 4.5, 4.5), Color("#486b48"))
     for x in [-115.0, -75.0, -35.0, 5.0, 45.0]:
-        for z in [-123.0, -101.0]:
+        for z in [-126.0, -98.0]:
             _visual_box(self, "Prospect_Mira_Lamp_Post", Vector3(x, 4.0, z), Vector3(0.22, 8.0, 0.22), Color("#34383b"))
             _visual_box(self, "Prospect_Mira_Lamp_Head", Vector3(x, 8.1, z), Vector3(1.0, 0.3, 0.55), Color("#e7d6a4"))
     # Two simple public-transport stops facing the avenue.
@@ -663,7 +668,7 @@ func _build_street_details() -> void:
     var trim := Color("#6d6256")
 
     # Dashed centre lines and edge lines on the main east-west avenue.
-    for x in range(-190, 191, 16):
+    for x in range(-140, 56, 16):
         _visual_box(self, "Mira_Centre_Dash", Vector3(float(x), 0.31, -112), Vector3(7.0, 0.035, 0.22), lane_yellow)
     for z in [-119.0, -105.0]:
         _visual_box(self, "Mira_Road_Edge_Line", Vector3(-45, 0.30, z), Vector3(205, 0.035, 0.16), lane_white)
