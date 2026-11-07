@@ -385,7 +385,7 @@ class MainActivity : Activity() {
 
             // Body highlights, side crease, door and handle
             p.color = Color.argb(170, 205, 218, 230)
-            p.strokeWidth = dp(1.2f).toFloat()
+            p.strokeWidth = (1.2f * resources.displayMetrics.density)
             p.style = Paint.Style.STROKE
             canvas.drawLine(w * .075f, carY - h * .059f, w * .425f, carY - h * .057f, p)
             canvas.drawLine(w * .30f, carY - h * .068f, w * .30f, carY - h * .012f, p)
@@ -409,7 +409,7 @@ class MainActivity : Activity() {
                 canvas.save()
                 canvas.rotate(wheelAngle, wx, wy)
                 p.color = Color.rgb(205, 214, 222)
-                p.strokeWidth = dp(1.6f).toFloat()
+                p.strokeWidth = (1.6f * resources.displayMetrics.density)
                 for (spoke in 0..9) {
                     val angle = Math.toRadians((spoke * 36).toDouble())
                     val px = wx + (kotlin.math.cos(angle) * radius * .72).toFloat()
