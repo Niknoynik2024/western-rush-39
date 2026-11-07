@@ -1,6 +1,7 @@
 package com.westernrush.rp
 
 import android.app.Activity
+import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -219,6 +220,19 @@ class MainActivity : Activity() {
 
     private inner class KaliningradBackdropView : View(this@MainActivity) {
         private val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        private var carOffset = 0f
+        init {
+            ValueAnimator.ofFloat(-0.035f, 0.035f).apply {
+                duration = 4200L
+                repeatCount = ValueAnimator.INFINITE
+                repeatMode = ValueAnimator.REVERSE
+                addUpdateListener {
+                    carOffset = it.animatedValue as Float
+                    invalidate()
+                }
+                start()
+            }
+        }
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             val w = width.toFloat()
@@ -268,7 +282,9 @@ class MainActivity : Activity() {
                 canvas.drawRect(w*.18f, y, w*(.35f + (i%4)*.06f), y+dp(1), p)
                 canvas.drawRect(w*.58f, y+dp(3), w*(.73f+(i%3)*.04f), y+dp(4), p)
             }
-            // Roadside sports car silhouette
+            // Animated sports car: gently cruises across the city backdrop
+            canvas.save()
+            canvas.translate(w * carOffset, 0f)
             val carY = h*.79f
             p.color = Color.rgb(5, 7, 11)
             val car = Path().apply {
@@ -282,6 +298,7 @@ class MainActivity : Activity() {
             canvas.drawCircle(w*.37f, carY, h*.045f, p)
             p.color = Color.rgb(255, 164, 58)
             canvas.drawRect(w*.40f, carY-h*.045f, w*.445f, carY-h*.033f, p)
+            canvas.restore()
             // Dark vignette for readable controls
             p.shader = LinearGradient(0f, 0f, w, 0f,
                 intArrayOf(Color.argb(10,0,0,0), Color.argb(45,0,0,0), Color.argb(225,0,0,0)),
