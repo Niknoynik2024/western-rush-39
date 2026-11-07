@@ -240,6 +240,12 @@ class MainActivity : Activity() {
             super.onDraw(canvas)
             val w = width.toFloat()
             val h = height.toFloat()
+            // Gentle camera drift and breathing zoom for a cinematic moving background
+            val cameraSway = kotlin.math.sin(driveProgress * Math.PI * 2.0).toFloat() * dp(4)
+            val cameraZoom = 1.012f + kotlin.math.sin(driveProgress * Math.PI * 2.0).toFloat() * 0.004f
+            canvas.save()
+            canvas.scale(cameraZoom, cameraZoom, w * 0.5f, h * 0.5f)
+            canvas.translate(cameraSway, 0f)
             p.shader = LinearGradient(0f, 0f, w, h,
                 intArrayOf(Color.rgb(18, 21, 38), Color.rgb(72, 47, 49), Color.rgb(7, 12, 18)),
                 null, Shader.TileMode.CLAMP)
@@ -295,6 +301,17 @@ class MainActivity : Activity() {
                 canvas.drawRoundRect(sx, roadY + (i % 3) * dp(7), sx + streakWidth,
                     roadY + (i % 3) * dp(7) + dp(2), dp(2).toFloat(), dp(2).toFloat(), p)
             }
+
+            // Fine diagonal rain catches the city lights as the camera moves
+            p.style = Paint.Style.STROKE
+            p.strokeWidth = dp(1).toFloat()
+            for (i in 0..54) {
+                val x = ((i * 73f + driveProgress * w * 0.7f) % (w + dp(30))) - dp(15)
+                val y = ((i * 41f) % h)
+                p.color = Color.argb(22 + (i % 4) * 7, 190, 208, 225)
+                canvas.drawLine(x, y, x - dp(5), y + dp(13), p)
+            }
+            p.style = Paint.Style.FILL
 
             // Cinematic coupe driving through the night
             val carOffset = -0.50f + driveProgress * 1.48f
@@ -433,6 +450,7 @@ class MainActivity : Activity() {
                 null, Shader.TileMode.CLAMP)
             canvas.drawRect(0f, 0f, w, h, p)
             p.shader = null
+            canvas.restore()
         }
     }
 }
