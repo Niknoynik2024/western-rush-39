@@ -296,80 +296,136 @@ class MainActivity : Activity() {
                     roadY + (i % 3) * dp(7) + dp(2), dp(2).toFloat(), dp(2).toFloat(), p)
             }
 
-            // Sports car cruises from left to right through the night city
+            // Cinematic coupe driving through the night
             val carOffset = -0.50f + driveProgress * 1.48f
             canvas.save()
             canvas.translate(w * carOffset, 0f)
             val carY = h * .79f
+            val carLeft = w * .035f
+            val carRight = w * .475f
 
-            // Headlight beam on the wet road
+            // Soft amber headlight cone and road glow
             val beam = Path().apply {
-                moveTo(w * .425f, carY - h * .045f)
-                lineTo(w * .82f, carY + h * .10f)
-                lineTo(w * .82f, carY + h * .18f)
-                lineTo(w * .425f, carY - h * .005f)
+                moveTo(w * .445f, carY - h * .055f)
+                lineTo(w * .88f, carY + h * .10f)
+                lineTo(w * .88f, carY + h * .19f)
+                lineTo(w * .43f, carY + h * .005f)
                 close()
             }
-            p.shader = LinearGradient(w * .43f, carY, w * .82f, carY + h * .12f,
-                intArrayOf(Color.argb(95, 255, 210, 125), Color.argb(0, 255, 190, 90)),
+            p.shader = LinearGradient(w * .44f, carY, w * .86f, carY + h * .13f,
+                intArrayOf(Color.argb(105, 255, 221, 153), Color.argb(0, 255, 164, 48)),
                 null, Shader.TileMode.CLAMP)
             canvas.drawPath(beam, p)
             p.shader = null
 
-            // Sport coupe body and windows
-            p.color = Color.rgb(5, 7, 11)
-            val carBody = Path().apply {
-                moveTo(w * .04f, carY); lineTo(w * .10f, carY - h * .07f)
-                lineTo(w * .19f, carY - h * .12f); lineTo(w * .34f, carY - h * .12f)
-                lineTo(w * .43f, carY - h * .04f); lineTo(w * .47f, carY)
-                close()
-            }
-            canvas.drawPath(carBody, p)
-            p.color = Color.rgb(22, 31, 42)
-            val windows = Path().apply {
-                moveTo(w * .115f, carY - h * .075f)
-                lineTo(w * .20f, carY - h * .108f)
-                lineTo(w * .33f, carY - h * .108f)
-                lineTo(w * .39f, carY - h * .045f)
-                lineTo(w * .13f, carY - h * .045f)
-                close()
-            }
-            canvas.drawPath(windows, p)
+            // Ground shadow
+            p.color = Color.argb(155, 0, 0, 0)
+            canvas.drawOval(w * .045f, carY - h * .012f, w * .49f, carY + h * .045f, p)
 
-            // Spinning alloy wheels
-            for (wheelX in floatArrayOf(.15f, .37f)) {
+            // Lower chassis and sculpted body with metallic gradient
+            val body = Path().apply {
+                moveTo(carLeft, carY - h * .018f)
+                lineTo(w * .065f, carY - h * .067f)
+                quadTo(w * .105f, carY - h * .083f, w * .155f, carY - h * .087f)
+                lineTo(w * .205f, carY - h * .132f)
+                quadTo(w * .225f, carY - h * .145f, w * .265f, carY - h * .145f)
+                lineTo(w * .345f, carY - h * .133f)
+                quadTo(w * .375f, carY - h * .126f, w * .405f, carY - h * .082f)
+                lineTo(w * .455f, carY - h * .054f)
+                lineTo(carRight, carY - h * .018f)
+                lineTo(w * .465f, carY + h * .006f)
+                lineTo(w * .055f, carY + h * .006f)
+                close()
+            }
+            p.shader = LinearGradient(0f, carY - h * .15f, 0f, carY + h * .01f,
+                intArrayOf(Color.rgb(80, 91, 105), Color.rgb(20, 27, 36), Color.rgb(3, 5, 9)),
+                null, Shader.TileMode.CLAMP)
+            canvas.drawPath(body, p)
+            p.shader = null
+
+            // Window glass, pillars and roofline
+            val glass = Path().apply {
+                moveTo(w * .105f, carY - h * .077f)
+                lineTo(w * .207f, carY - h * .128f)
+                quadTo(w * .222f, carY - h * .137f, w * .255f, carY - h * .136f)
+                lineTo(w * .285f, carY - h * .134f)
+                lineTo(w * .285f, carY - h * .079f)
+                close()
+                moveTo(w * .298f, carY - h * .134f)
+                lineTo(w * .342f, carY - h * .126f)
+                quadTo(w * .367f, carY - h * .119f, w * .389f, carY - h * .078f)
+                lineTo(w * .298f, carY - h * .079f)
+                close()
+            }
+            p.color = Color.rgb(8, 17, 27)
+            canvas.drawPath(glass, p)
+            p.color = Color.argb(130, 142, 174, 196)
+            p.style = Paint.Style.STROKE
+            p.strokeWidth = dp(1).toFloat()
+            canvas.drawLine(w * .112f, carY - h * .073f, w * .205f, carY - h * .123f, p)
+            canvas.drawLine(w * .294f, carY - h * .128f, w * .294f, carY - h * .078f, p)
+            p.style = Paint.Style.FILL
+
+            // Body highlights, side crease, door and handle
+            p.color = Color.argb(170, 205, 218, 230)
+            p.strokeWidth = dp(1.2f).toFloat()
+            p.style = Paint.Style.STROKE
+            canvas.drawLine(w * .075f, carY - h * .059f, w * .425f, carY - h * .057f, p)
+            canvas.drawLine(w * .30f, carY - h * .068f, w * .30f, carY - h * .012f, p)
+            p.color = Color.rgb(180, 188, 195)
+            canvas.drawLine(w * .325f, carY - h * .066f, w * .35f, carY - h * .066f, p)
+            p.style = Paint.Style.FILL
+
+            // Detailed alloy wheels, rotating spokes and brake hubs
+            for (wheelX in floatArrayOf(.145f, .375f)) {
                 val wx = w * wheelX
-                val wy = carY - h * .005f
-                val radius = h * .037f
-                p.color = Color.rgb(2, 3, 5)
-                canvas.drawCircle(wx, wy, radius * 1.22f, p)
-                p.color = Color.rgb(145, 153, 162)
+                val wy = carY - h * .004f
+                val radius = h * .043f
+                p.color = Color.argb(210, 0, 0, 0)
+                canvas.drawCircle(wx, wy, radius * 1.18f, p)
+                p.color = Color.rgb(13, 16, 20)
+                canvas.drawCircle(wx, wy, radius, p)
+                p.color = Color.rgb(166, 177, 187)
                 p.style = Paint.Style.STROKE
                 p.strokeWidth = dp(2).toFloat()
-                canvas.drawCircle(wx, wy, radius * .78f, p)
+                canvas.drawCircle(wx, wy, radius * .79f, p)
                 canvas.save()
                 canvas.rotate(wheelAngle, wx, wy)
-                p.color = Color.rgb(215, 220, 225)
-                p.strokeWidth = dp(1.5f).toFloat()
-                for (spoke in 0..4) {
-                    val angle = Math.toRadians((spoke * 72).toDouble())
-                    val px = wx + (kotlin.math.cos(angle) * radius * .65).toFloat()
-                    val py = wy + (kotlin.math.sin(angle) * radius * .65).toFloat()
+                p.color = Color.rgb(205, 214, 222)
+                p.strokeWidth = dp(1.6f).toFloat()
+                for (spoke in 0..9) {
+                    val angle = Math.toRadians((spoke * 36).toDouble())
+                    val px = wx + (kotlin.math.cos(angle) * radius * .72).toFloat()
+                    val py = wy + (kotlin.math.sin(angle) * radius * .72).toFloat()
                     canvas.drawLine(wx, wy, px, py, p)
                 }
                 canvas.restore()
                 p.style = Paint.Style.FILL
-                p.color = Color.rgb(55, 61, 68)
-                canvas.drawCircle(wx, wy, radius * .22f, p)
+                p.color = Color.rgb(72, 82, 92)
+                canvas.drawCircle(wx, wy, radius * .28f, p)
+                p.color = Color.rgb(205, 211, 218)
+                canvas.drawCircle(wx, wy, radius * .11f, p)
             }
 
-            // Headlights and tail lamps
-            p.color = Color.rgb(255, 226, 157)
-            canvas.drawRoundRect(w * .425f, carY - h * .047f, w * .458f, carY - h * .027f,
+            // Front LED headlights with glow, rear lamps and bumper details
+            p.color = Color.argb(90, 255, 220, 145)
+            canvas.drawOval(w * .425f, carY - h * .072f, w * .472f, carY - h * .027f, p)
+            p.color = Color.rgb(255, 238, 190)
+            canvas.drawRoundRect(w * .432f, carY - h * .058f, w * .468f, carY - h * .044f,
                 dp(3).toFloat(), dp(3).toFloat(), p)
-            p.color = Color.rgb(255, 48, 24)
-            canvas.drawRoundRect(w * .045f, carY - h * .035f, w * .075f, carY - h * .018f,
-                dp(2).toFloat(), dp(2).toFloat(), p)
+            p.color = Color.rgb(255, 40, 26)
+            canvas.drawRoundRect(w * .045f, carY - h * .049f, w * .078f, carY - h * .028f,
+                dp(3).toFloat(), dp(3).toFloat(), p)
+            p.color = Color.rgb(42, 48, 55)
+            canvas.drawRoundRect(w * .435f, carY - h * .015f, w * .47f, carY + h * .002f,
+                dp(3).toFloat(), dp(3).toFloat(), p)
+
+            // Glossy reflection beneath the moving car
+            p.shader = LinearGradient(0f, carY, 0f, carY + h * .10f,
+                intArrayOf(Color.argb(85, 255, 166, 72), Color.argb(0, 255, 166, 72)),
+                null, Shader.TileMode.CLAMP)
+            canvas.drawOval(w * .09f, carY + h * .008f, w * .43f, carY + h * .085f, p)
+            p.shader = null
             canvas.restore()
             // Dark vignette for readable controls
             p.shader = LinearGradient(0f, 0f, w, 0f,
