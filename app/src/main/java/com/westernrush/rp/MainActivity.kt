@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.*
 
 class MainActivity : Activity() {
@@ -220,14 +221,16 @@ class MainActivity : Activity() {
 
     private inner class KaliningradBackdropView : View(this@MainActivity) {
         private val p = Paint(Paint.ANTI_ALIAS_FLAG)
-        private var carOffset = 0f
+        private var driveProgress = 0f
+        private var wheelAngle = 0f
         init {
-            ValueAnimator.ofFloat(-0.035f, 0.035f).apply {
-                duration = 4200L
+            ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = 9000L
                 repeatCount = ValueAnimator.INFINITE
-                repeatMode = ValueAnimator.REVERSE
+                interpolator = LinearInterpolator()
                 addUpdateListener {
-                    carOffset = it.animatedValue as Float
+                    driveProgress = it.animatedValue as Float
+                    wheelAngle = driveProgress * 1800f
                     invalidate()
                 }
                 start()
@@ -282,22 +285,91 @@ class MainActivity : Activity() {
                 canvas.drawRect(w*.18f, y, w*(.35f + (i%4)*.06f), y+dp(1), p)
                 canvas.drawRect(w*.58f, y+dp(3), w*(.73f+(i%3)*.04f), y+dp(4), p)
             }
-            // Animated sports car: gently cruises across the city backdrop
+            // Animated road reflections and passing light trails
+            val roadY = h * .84f
+            for (i in 0..9) {
+                val lane = (i / 10f + driveProgress) % 1f
+                val sx = lane * w
+                val streakWidth = w * (0.025f + (i % 3) * 0.012f)
+                p.color = Color.argb(65 + (i % 3) * 18, 255, 151, 64)
+                canvas.drawRoundRect(sx, roadY + (i % 3) * dp(7), sx + streakWidth,
+                    roadY + (i % 3) * dp(7) + dp(2), dp(2).toFloat(), dp(2).toFloat(), p)
+            }
+
+            // Sports car cruises from left to right through the night city
+            val carOffset = -0.50f + driveProgress * 1.48f
             canvas.save()
             canvas.translate(w * carOffset, 0f)
-            val carY = h*.79f
-            p.color = Color.rgb(5, 7, 11)
-            val car = Path().apply {
-                moveTo(w*.04f, carY); lineTo(w*.10f, carY-h*.07f)
-                lineTo(w*.19f, carY-h*.12f); lineTo(w*.34f, carY-h*.12f)
-                lineTo(w*.43f, carY-h*.04f); lineTo(w*.47f, carY)
+            val carY = h * .79f
+
+            // Headlight beam on the wet road
+            val beam = Path().apply {
+                moveTo(w * .425f, carY - h * .045f)
+                lineTo(w * .82f, carY + h * .10f)
+                lineTo(w * .82f, carY + h * .18f)
+                lineTo(w * .425f, carY - h * .005f)
                 close()
             }
-            canvas.drawPath(car, p)
-            canvas.drawCircle(w*.15f, carY, h*.045f, p)
-            canvas.drawCircle(w*.37f, carY, h*.045f, p)
-            p.color = Color.rgb(255, 164, 58)
-            canvas.drawRect(w*.40f, carY-h*.045f, w*.445f, carY-h*.033f, p)
+            p.shader = LinearGradient(w * .43f, carY, w * .82f, carY + h * .12f,
+                intArrayOf(Color.argb(95, 255, 210, 125), Color.argb(0, 255, 190, 90)),
+                null, Shader.TileMode.CLAMP)
+            canvas.drawPath(beam, p)
+            p.shader = null
+
+            // Sport coupe body and windows
+            p.color = Color.rgb(5, 7, 11)
+            val carBody = Path().apply {
+                moveTo(w * .04f, carY); lineTo(w * .10f, carY - h * .07f)
+                lineTo(w * .19f, carY - h * .12f); lineTo(w * .34f, carY - h * .12f)
+                lineTo(w * .43f, carY - h * .04f); lineTo(w * .47f, carY)
+                close()
+            }
+            canvas.drawPath(carBody, p)
+            p.color = Color.rgb(22, 31, 42)
+            val windows = Path().apply {
+                moveTo(w * .115f, carY - h * .075f)
+                lineTo(w * .20f, carY - h * .108f)
+                lineTo(w * .33f, carY - h * .108f)
+                lineTo(w * .39f, carY - h * .045f)
+                lineTo(w * .13f, carY - h * .045f)
+                close()
+            }
+            canvas.drawPath(windows, p)
+
+            // Spinning alloy wheels
+            for (wheelX in floatArrayOf(.15f, .37f)) {
+                val wx = w * wheelX
+                val wy = carY - h * .005f
+                val radius = h * .037f
+                p.color = Color.rgb(2, 3, 5)
+                canvas.drawCircle(wx, wy, radius * 1.22f, p)
+                p.color = Color.rgb(145, 153, 162)
+                p.style = Paint.Style.STROKE
+                p.strokeWidth = dp(2).toFloat()
+                canvas.drawCircle(wx, wy, radius * .78f, p)
+                canvas.save()
+                canvas.rotate(wheelAngle, wx, wy)
+                p.color = Color.rgb(215, 220, 225)
+                p.strokeWidth = dp(1.5f).toFloat()
+                for (spoke in 0..4) {
+                    val angle = Math.toRadians((spoke * 72).toDouble())
+                    val px = wx + (kotlin.math.cos(angle) * radius * .65).toFloat()
+                    val py = wy + (kotlin.math.sin(angle) * radius * .65).toFloat()
+                    canvas.drawLine(wx, wy, px, py, p)
+                }
+                canvas.restore()
+                p.style = Paint.Style.FILL
+                p.color = Color.rgb(55, 61, 68)
+                canvas.drawCircle(wx, wy, radius * .22f, p)
+            }
+
+            // Headlights and tail lamps
+            p.color = Color.rgb(255, 226, 157)
+            canvas.drawRoundRect(w * .425f, carY - h * .047f, w * .458f, carY - h * .027f,
+                dp(3).toFloat(), dp(3).toFloat(), p)
+            p.color = Color.rgb(255, 48, 24)
+            canvas.drawRoundRect(w * .045f, carY - h * .035f, w * .075f, carY - h * .018f,
+                dp(2).toFloat(), dp(2).toFloat(), p)
             canvas.restore()
             // Dark vignette for readable controls
             p.shader = LinearGradient(0f, 0f, w, 0f,
