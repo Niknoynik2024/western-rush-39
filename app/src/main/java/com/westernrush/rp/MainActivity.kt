@@ -11,7 +11,6 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -22,125 +21,113 @@ import android.widget.Toast
 class MainActivity : Activity() {
     private val serverAddress = "88.119.171.76:7777"
     private val gold = Color.rgb(232, 165, 74)
-    private val background = Color.rgb(12, 15, 20)
-    private val panelColor = Color.rgb(25, 30, 38)
-    private lateinit var nicknameInput: EditText
+    private val bg = Color.rgb(10, 13, 18)
+    private val panel = Color.rgb(25, 30, 38)
+    private lateinit var nickname: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = background
-        window.navigationBarColor = background
-        window.decorView.systemUiVisibility = 0
+        window.statusBarColor = bg
+        window.navigationBarColor = bg
 
-        val scroll = ScrollView(this).apply {
-            setBackgroundColor(background)
-            isFillViewport = true
-        }
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(24), dp(26), dp(24), dp(26))
-        }
-        scroll.addView(root)
-
-        val topLine = LinearLayout(this).apply {
+        val scroll = ScrollView(this).apply { setBackgroundColor(bg); isFillViewport = true }
+        val layout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-        val brand = text("WR", 20, gold, true).apply {
             gravity = Gravity.CENTER
-            background = rounded(Color.rgb(42, 35, 27), 14)
+            setPadding(dp(22), dp(14), dp(22), dp(14))
         }
-        topLine.addView(brand, LinearLayout.LayoutParams(dp(48), dp(48)))
-        val brandText = LinearLayout(this).apply {
+        scroll.addView(layout)
+
+        // Left side: cinematic identity panel
+        val left = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(12), 0, 0, 0)
+            gravity = Gravity.CENTER
+            setPadding(dp(18), dp(12), dp(22), dp(12))
         }
-        brandText.addView(text("WESTERN RUSH", 15, Color.WHITE, true), matchWrap())
-        brandText.addView(text("ROLEPLAY • KALININGRAD", 10, gold, true), matchWrap())
-        topLine.addView(brandText, LinearLayout.LayoutParams(0, -2, 1f))
-        topLine.addView(text("MOBILE", 10, Color.LTGRAY, true).apply {
-            setPadding(dp(10), dp(6), dp(10), dp(6))
-            background = rounded(Color.rgb(35, 41, 50), 20)
-        })
-        root.addView(topLine, matchWrap())
+        layout.addView(left, LinearLayout.LayoutParams(0, -1, 1.05f))
+
+        val logoRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        val logo = text("WR", 19, gold, true).apply {
+            gravity = Gravity.CENTER
+            background = rounded(Color.rgb(48, 37, 25), 13)
+        }
+        logoRow.addView(logo, LinearLayout.LayoutParams(dp(46), dp(46)))
+        val logoLabels = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(11), 0, 0, 0)
+        }
+        logoLabels.addView(text("WESTERN RUSH", 15, Color.WHITE, true), wrap())
+        logoLabels.addView(text("ROLEPLAY • KALININGRAD", 10, gold, true), wrap())
+        logoRow.addView(logoLabels, LinearLayout.LayoutParams(0, -2, 1f))
+        left.addView(logoRow, match())
 
         val hero = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(dp(18), dp(34), dp(18), dp(30))
+            setPadding(dp(14), dp(20), dp(14), dp(20))
             background = GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
-                intArrayOf(Color.rgb(48, 39, 29), Color.rgb(24, 29, 37), Color.rgb(18, 23, 30))
+                intArrayOf(Color.rgb(61, 43, 27), Color.rgb(27, 32, 40), Color.rgb(16, 21, 28))
             ).apply { cornerRadius = dp(22).toFloat() }
         }
-        val heroParams = matchWrap().apply { topMargin = dp(24) }
-        root.addView(hero, heroParams)
-        hero.addView(text("ТВОЙ ГОРОД. ТВОЯ ИСТОРИЯ.", 11, gold, true).apply {
-            gravity = Gravity.CENTER
-            letterSpacing = 0.12f
-        }, matchWrap())
+        left.addView(hero, LinearLayout.LayoutParams(-1, 0, 1f).apply { topMargin = dp(16); bottomMargin = dp(10) })
+        hero.addView(text("ТВОЙ ГОРОД. ТВОЯ ИСТОРИЯ.", 10, gold, true).apply {
+            gravity = Gravity.CENTER; letterSpacing = 0.12f
+        }, wrap())
         hero.addView(text("WESTERN\nRUSH", 42, Color.WHITE, true).apply {
             gravity = Gravity.CENTER
             typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
-            setLineSpacing(0f, 0.88f)
-        }, matchWrap())
-        hero.addView(text("КАЛИНИНГРАД • РОССИЯ", 12, Color.LTGRAY, true).apply {
-            gravity = Gravity.CENTER
-            letterSpacing = 0.16f
-        }, matchWrap())
+            setLineSpacing(0f, 0.86f)
+        }, wrap())
+        hero.addView(text("КАЛИНИНГРАД • РОССИЯ", 11, Color.LTGRAY, true).apply {
+            gravity = Gravity.CENTER; letterSpacing = 0.12f
+        }, wrap())
+        left.addView(text("MOBILE ROLEPLAY  •  ANDROID", 9, Color.GRAY, true).apply {
+            gravity = Gravity.CENTER; letterSpacing = 0.1f
+        }, match())
 
-        val serverCard = card(root, "ИГРОВОЙ СЕРВЕР")
-        serverCard.addView(text(serverAddress, 22, Color.WHITE, true).apply {
+        // Right side: player controls
+        val right = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-        }, matchWrap())
-        serverCard.addView(text("SAMP MOBILE • ПОДКЛЮЧЕНИЕ ПО IP", 10, Color.GRAY, true).apply {
-            gravity = Gravity.CENTER
-            letterSpacing = 0.06f
-        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
-        val copyButton = button("СКОПИРОВАТЬ IP", Color.rgb(55, 63, 74), Color.WHITE)
-        serverCard.addView(copyButton, LinearLayout.LayoutParams(-1, dp(48)).apply {
-            topMargin = dp(16)
-        })
-        copyButton.setOnClickListener { copyAddress() }
+            setPadding(dp(12), dp(4), dp(4), dp(4))
+        }
+        layout.addView(right, LinearLayout.LayoutParams(0, -1, 0.95f))
 
-        val nicknameCard = card(root, "ИГРОВОЙ НИК")
-        nicknameInput = EditText(this).apply {
+        val serverCard = card(right, "ИГРОВОЙ СЕРВЕР")
+        serverCard.addView(text(serverAddress, 20, Color.WHITE, true).apply { gravity = Gravity.CENTER }, match())
+        serverCard.addView(text("SAMP MOBILE • ПОДКЛЮЧЕНИЕ ПО IP", 9, Color.GRAY, true).apply {
+            gravity = Gravity.CENTER; letterSpacing = 0.04f
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(5) })
+        val copy = button("КОПИРОВАТЬ IP", Color.rgb(55, 63, 74), Color.WHITE)
+        serverCard.addView(copy, LinearLayout.LayoutParams(-1, dp(42)).apply { topMargin = dp(10) })
+        copy.setOnClickListener { copyAddress() }
+
+        val playerCard = card(right, "ИГРОВОЙ НИК")
+        nickname = EditText(this).apply {
             setSingleLine(true)
-            textSize = 16f
+            textSize = 15f
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
             hint = "Введи свой ник"
-            setPadding(dp(14), 0, dp(14), 0)
-            background = rounded(Color.rgb(16, 20, 26), 12, Color.rgb(58, 65, 76))
+            setPadding(dp(12), 0, dp(12), 0)
+            background = rounded(Color.rgb(15, 19, 25), 10, Color.rgb(58, 65, 76))
             setText(getSharedPreferences("western_rush", MODE_PRIVATE).getString("nickname", ""))
         }
-        nicknameCard.addView(nicknameInput, LinearLayout.LayoutParams(-1, dp(52)))
+        playerCard.addView(nickname, LinearLayout.LayoutParams(-1, dp(46)))
 
-        val playButton = button("▶   ИГРАТЬ", gold, Color.rgb(20, 20, 20)).apply {
-            textSize = 18f
+        val play = button("▶   ИГРАТЬ", gold, Color.rgb(20, 20, 20)).apply {
+            textSize = 17f
             typeface = Typeface.DEFAULT_BOLD
         }
-        root.addView(playButton, LinearLayout.LayoutParams(-1, dp(58)).apply {
-            topMargin = dp(22)
-        })
-        playButton.setOnClickListener {
-            saveNickname()
-            connectToServer()
-        }
+        right.addView(play, LinearLayout.LayoutParams(-1, dp(54)).apply { topMargin = dp(14) })
+        play.setOnClickListener { saveNickname(); connectToServer() }
 
-        root.addView(text("ВАЖНО", 10, gold, true).apply {
-            letterSpacing = 0.12f
-        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(22) })
-        root.addView(text(
-            "Для входа нужен установленный совместимый клиент SAMP Mobile. Лаунчер не содержит GTA San Andreas или сам игровой клиент.",
-            12, Color.LTGRAY, false
-        ).apply { setLineSpacing(dp(3).toFloat(), 1f) },
-            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(7) })
-
-        root.addView(text("WESTERN RUSH RP  •  ANDROID", 10, Color.GRAY, true).apply {
-            gravity = Gravity.CENTER
-        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(30) })
+        right.addView(text(
+            "Нужен установленный совместимый клиент SAMP Mobile. Игра не входит в APK лаунчера.",
+            10, Color.GRAY, false
+        ).apply { gravity = Gravity.CENTER; setLineSpacing(dp(2).toFloat(), 1f) },
+            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
 
         setContentView(scroll)
     }
@@ -148,61 +135,51 @@ class MainActivity : Activity() {
     private fun card(parent: LinearLayout, heading: String): LinearLayout {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(18), dp(17), dp(18), dp(18))
-            background = rounded(panelColor, 18)
+            setPadding(dp(15), dp(12), dp(15), dp(14))
+            background = rounded(panel, 16)
         }
-        parent.addView(box, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(16) })
-        box.addView(text(heading, 10, gold, true).apply {
-            letterSpacing = 0.1f
-        }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(12) })
+        parent.addView(box, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+        box.addView(text(heading, 10, gold, true).apply { letterSpacing = 0.1f },
+            LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(9) })
         return box
     }
 
     private fun connectToServer() {
         copyAddress()
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("samp://$serverAddress"))
         try {
-            startActivity(Intent.createChooser(intent, "Открыть совместимый SAMP Mobile"))
+            startActivity(Intent.createChooser(Intent(Intent.ACTION_VIEW, Uri.parse("samp://$serverAddress")), "Открыть SAMP Mobile"))
         } catch (_: Exception) {
-            Toast.makeText(this, "IP скопирован. Открой SAMP Mobile и добавь сервер вручную.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "IP скопирован. Добавь сервер в SAMP Mobile вручную.", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun saveNickname() {
         getSharedPreferences("western_rush", MODE_PRIVATE).edit()
-            .putString("nickname", nicknameInput.text.toString().trim())
-            .apply()
+            .putString("nickname", nickname.text.toString().trim()).apply()
     }
 
     private fun copyAddress() {
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("SAMP server", serverAddress))
-        Toast.makeText(this, "Адрес сервера скопирован", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "IP сервера скопирован", Toast.LENGTH_SHORT).show()
     }
 
     private fun button(label: String, color: Int, textColor: Int) = Button(this).apply {
-        text = label
-        textSize = 13f
-        setTextColor(textColor)
-        backgroundTintList = ColorStateList.valueOf(color)
-        isAllCaps = false
+        text = label; textSize = 12f; setTextColor(textColor)
+        backgroundTintList = ColorStateList.valueOf(color); isAllCaps = false
     }
 
-    private fun text(value: String, size: Int, color: Int, bold: Boolean) =
-        TextView(this).apply {
-            text = value
-            textSize = size.toFloat()
-            setTextColor(color)
-            if (bold) setTypeface(typeface, Typeface.BOLD)
-        }
+    private fun text(value: String, size: Int, color: Int, bold: Boolean) = TextView(this).apply {
+        text = value; textSize = size.toFloat(); setTextColor(color)
+        if (bold) setTypeface(typeface, Typeface.BOLD)
+    }
 
-    private fun rounded(color: Int, radius: Int, stroke: Int? = null) =
-        GradientDrawable().apply {
-            setColor(color)
-            cornerRadius = dp(radius).toFloat()
-            if (stroke != null) setStroke(dp(1), stroke)
-        }
+    private fun rounded(color: Int, radius: Int, stroke: Int? = null) = GradientDrawable().apply {
+        setColor(color); cornerRadius = dp(radius).toFloat()
+        if (stroke != null) setStroke(dp(1), stroke)
+    }
 
-    private fun matchWrap() = LinearLayout.LayoutParams(-1, -2)
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+    private fun match() = LinearLayout.LayoutParams(-1, -2)
+    private fun wrap() = LinearLayout.LayoutParams(-2, -2)
+    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 }
