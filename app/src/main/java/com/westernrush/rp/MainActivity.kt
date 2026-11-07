@@ -4,153 +4,195 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.Typeface
+import android.graphics.*
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 
 class MainActivity : Activity() {
+    private val gold = Color.rgb(255, 166, 0)
     private val serverAddress = "88.119.171.76:7777"
-    private val gold = Color.rgb(232, 165, 74)
-    private val bg = Color.rgb(10, 13, 18)
-    private val panel = Color.rgb(25, 30, 38)
     private lateinit var nickname: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = bg
-        window.navigationBarColor = bg
+        requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        window.statusBarColor = Color.rgb(8, 10, 14)
+        window.navigationBarColor = Color.rgb(8, 10, 14)
 
-        val scroll = ScrollView(this).apply { setBackgroundColor(bg); isFillViewport = true }
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            setPadding(dp(22), dp(14), dp(22), dp(14))
+        val frame = FrameLayout(this)
+        frame.addView(KaliningradBackdropView(), FrameLayout.LayoutParams(-1, -1))
+
+        val page = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(10), dp(20), dp(6))
         }
-        scroll.addView(layout)
+        frame.addView(page, FrameLayout.LayoutParams(-1, -1))
 
-        // Left side: cinematic identity panel
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        header.addView(label("WESTERN RUSH RP", 15, Color.WHITE, true), LinearLayout.LayoutParams(0, -2, 1f))
+        header.addView(label("ИГРАЙ. ОБЩАЙСЯ. РАЗВИВАЙСЯ.", 11, gold, true))
+        header.addView(roundButton("⚙", 38) { toast("Настройки появятся в следующем обновлении") })
+        header.addView(roundButton("i", 38) { toast("Western Rush RP Mobile • Калининград") })
+        page.addView(header, LinearLayout.LayoutParams(-1, dp(42)))
+
+        val main = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        page.addView(main, LinearLayout.LayoutParams(-1, 0, 1f))
+
         val left = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(dp(18), dp(12), dp(22), dp(12))
+            setPadding(dp(8), dp(2), dp(18), dp(2))
         }
-        layout.addView(left, LinearLayout.LayoutParams(0, -1, 1.05f))
-
-        val logoRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        val logo = text("WR", 19, gold, true).apply {
-            gravity = Gravity.CENTER
-            background = rounded(Color.rgb(48, 37, 25), 13)
-        }
-        logoRow.addView(logo, LinearLayout.LayoutParams(dp(46), dp(46)))
-        val logoLabels = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(11), 0, 0, 0)
-        }
-        logoLabels.addView(text("WESTERN RUSH", 15, Color.WHITE, true), wrap())
-        logoLabels.addView(text("ROLEPLAY • KALININGRAD", 10, gold, true), wrap())
-        logoRow.addView(logoLabels, LinearLayout.LayoutParams(0, -2, 1f))
-        left.addView(logoRow, match())
-
-        val hero = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(14), dp(20), dp(14), dp(20))
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(Color.rgb(61, 43, 27), Color.rgb(27, 32, 40), Color.rgb(16, 21, 28))
-            ).apply { cornerRadius = dp(22).toFloat() }
-        }
-        left.addView(hero, LinearLayout.LayoutParams(-1, 0, 1f).apply { topMargin = dp(16); bottomMargin = dp(10) })
-        hero.addView(text("ТВОЙ ГОРОД. ТВОЯ ИСТОРИЯ.", 10, gold, true).apply {
-            gravity = Gravity.CENTER; letterSpacing = 0.12f
-        }, wrap())
-        hero.addView(text("WESTERN\nRUSH", 42, Color.WHITE, true).apply {
+        main.addView(left, LinearLayout.LayoutParams(0, -1, 1.12f))
+        left.addView(label("♛", 36, gold, true).apply { gravity = Gravity.CENTER })
+        left.addView(label("WESTERN", 39, Color.WHITE, true).apply {
             gravity = Gravity.CENTER
             typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
-            setLineSpacing(0f, 0.86f)
-        }, wrap())
-        hero.addView(text("КАЛИНИНГРАД • РОССИЯ", 11, Color.LTGRAY, true).apply {
-            gravity = Gravity.CENTER; letterSpacing = 0.12f
-        }, wrap())
-        left.addView(text("MOBILE ROLEPLAY  •  ANDROID", 9, Color.GRAY, true).apply {
-            gravity = Gravity.CENTER; letterSpacing = 0.1f
-        }, match())
+            letterSpacing = -0.03f
+        })
+        left.addView(label("RUSH RP", 43, gold, true).apply {
+            gravity = Gravity.CENTER
+            typeface = Typeface.create("sans-serif-black", Typeface.BOLD_ITALIC)
+        })
+        left.addView(label("M O B I L E", 15, Color.WHITE, true).apply {
+            gravity = Gravity.CENTER
+            setPadding(dp(14), dp(3), dp(14), dp(3))
+            background = rounded(Color.rgb(185, 103, 0), 5)
+        }, LinearLayout.LayoutParams(-2, -2).apply { topMargin = dp(3) })
+        left.addView(label("КАЛИНИНГРАД", 18, Color.WHITE, false).apply {
+            gravity = Gravity.CENTER
+            typeface = Typeface.create("cursive", Typeface.ITALIC)
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(9) })
+        left.addView(label("ТВОЙ ГОРОД. ТВОЯ ИСТОРИЯ.", 9, Color.LTGRAY, true).apply {
+            gravity = Gravity.CENTER
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(5) })
 
-        // Right side: player controls
         val right = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(dp(12), dp(4), dp(4), dp(4))
+            setPadding(dp(10), dp(4), dp(4), dp(4))
         }
-        layout.addView(right, LinearLayout.LayoutParams(0, -1, 0.95f))
+        main.addView(right, LinearLayout.LayoutParams(0, -1, 0.88f))
 
-        val serverCard = card(right, "ИГРОВОЙ СЕРВЕР")
-        serverCard.addView(text(serverAddress, 20, Color.WHITE, true).apply { gravity = Gravity.CENTER }, match())
-        serverCard.addView(text("SAMP MOBILE • ПОДКЛЮЧЕНИЕ ПО IP", 9, Color.GRAY, true).apply {
-            gravity = Gravity.CENTER; letterSpacing = 0.04f
-        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(5) })
-        val copy = button("КОПИРОВАТЬ IP", Color.rgb(55, 63, 74), Color.WHITE)
-        serverCard.addView(copy, LinearLayout.LayoutParams(-1, dp(42)).apply { topMargin = dp(10) })
-        copy.setOnClickListener { copyAddress() }
+        val server = card("ИГРОВОЙ СЕРВЕР")
+        server.addView(label("Western Rush RP Mobile", 17, Color.WHITE, true))
+        server.addView(label("●  СЕРВЕР ДОСТУПЕН ДЛЯ ПОДКЛЮЧЕНИЯ", 10, Color.rgb(105, 220, 90), true),
+            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        val ipRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        ipRow.addView(label("IP:  $serverAddress", 14, Color.WHITE, true), LinearLayout.LayoutParams(0, -2, 1f))
+        ipRow.addView(smallButton("КОПИРОВАТЬ") { copyIp() })
+        server.addView(ipRow, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(9) })
+        server.addView(label("РЕЖИМ:  RolePlay", 11, Color.LTGRAY, false),
+            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(5) })
+        right.addView(server, LinearLayout.LayoutParams(-1, -2))
 
-        val playerCard = card(right, "ИГРОВОЙ НИК")
+        val player = card("ИГРОВОЙ НИК")
         nickname = EditText(this).apply {
             setSingleLine(true)
-            textSize = 15f
+            textSize = 14f
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
-            hint = "Введи свой ник"
+            hint = "Введите никнейм..."
             setPadding(dp(12), 0, dp(12), 0)
-            background = rounded(Color.rgb(15, 19, 25), 10, Color.rgb(58, 65, 76))
+            background = rounded(Color.rgb(18, 19, 23), 10, Color.rgb(105, 105, 105))
             setText(getSharedPreferences("western_rush", MODE_PRIVATE).getString("nickname", ""))
         }
-        playerCard.addView(nickname, LinearLayout.LayoutParams(-1, dp(46)))
+        player.addView(nickname, LinearLayout.LayoutParams(-1, dp(44)))
+        right.addView(player, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
 
-        val play = button("▶   ИГРАТЬ", gold, Color.rgb(20, 20, 20)).apply {
-            textSize = 17f
+        val play = Button(this).apply {
+            text = "▶    ИГРАТЬ    ››"
+            textSize = 19f
+            isAllCaps = false
+            setTextColor(Color.rgb(35, 22, 5))
             typeface = Typeface.DEFAULT_BOLD
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(Color.rgb(255, 194, 40), Color.rgb(255, 137, 0))
+            ).apply { cornerRadius = dp(15).toFloat(); setStroke(dp(2), Color.rgb(255, 213, 95)) }
         }
-        right.addView(play, LinearLayout.LayoutParams(-1, dp(54)).apply { topMargin = dp(14) })
-        play.setOnClickListener { saveNickname(); connectToServer() }
+        right.addView(play, LinearLayout.LayoutParams(-1, dp(54)).apply { topMargin = dp(10) })
+        play.setOnClickListener { saveNickname(); connect() }
 
-        right.addView(text(
-            "Нужен установленный совместимый клиент SAMP Mobile. Игра не входит в APK лаунчера.",
-            10, Color.GRAY, false
-        ).apply { gravity = Gravity.CENTER; setLineSpacing(dp(2).toFloat(), 1f) },
-            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
-
-        setContentView(scroll)
+        val nav = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            background = rounded(Color.argb(225, 9, 11, 15), 13, Color.rgb(80, 57, 28))
+        }
+        val navItems = listOf("⌂\nГлавная", "▤\nНовости", "★\nДостижения", "▣\nДонат", "☏\nПоддержка")
+        navItems.forEachIndexed { index, item ->
+            val itemView = label(item, 11, if (index == 0) gold else Color.LTGRAY, index == 0).apply {
+                gravity = Gravity.CENTER
+                setPadding(dp(6), dp(3), dp(6), dp(3))
+                setOnClickListener { toast(if (index == 0) "Вы на главной" else "Раздел «${item.substringAfter('\n')}» скоро появится") }
+            }
+            nav.addView(itemView, LinearLayout.LayoutParams(0, -1, 1f))
+        }
+        page.addView(nav, LinearLayout.LayoutParams(-1, dp(50)))
+        setContentView(frame)
     }
 
-    private fun card(parent: LinearLayout, heading: String): LinearLayout {
+    private fun card(title: String): LinearLayout {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(15), dp(12), dp(15), dp(14))
-            background = rounded(panel, 16)
+            setPadding(dp(13), dp(9), dp(13), dp(10))
+            background = rounded(Color.argb(220, 12, 14, 18), 13, Color.argb(150, 180, 115, 35))
         }
-        parent.addView(box, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
-        box.addView(text(heading, 10, gold, true).apply { letterSpacing = 0.1f },
-            LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(9) })
+        box.addView(label(title, 10, gold, true))
         return box
     }
 
-    private fun connectToServer() {
-        copyAddress()
-        try {
-            startActivity(Intent.createChooser(Intent(Intent.ACTION_VIEW, Uri.parse("samp://$serverAddress")), "Открыть SAMP Mobile"))
-        } catch (_: Exception) {
-            Toast.makeText(this, "IP скопирован. Добавь сервер в SAMP Mobile вручную.", Toast.LENGTH_LONG).show()
-        }
+    private fun label(value: String, size: Int, color: Int, bold: Boolean) = TextView(this).apply {
+        text = value
+        textSize = size.toFloat()
+        setTextColor(color)
+        if (bold) setTypeface(typeface, Typeface.BOLD)
+        setShadowLayer(5f, 1f, 2f, Color.BLACK)
+    }
+
+    private fun roundButton(value: String, size: Int, action: () -> Unit) = TextView(this).apply {
+        text = value
+        textSize = 19f
+        gravity = Gravity.CENTER
+        setTextColor(Color.WHITE)
+        background = rounded(Color.argb(180, 25, 27, 31), 40, Color.GRAY)
+        setOnClickListener { action() }
+        layoutParams = LinearLayout.LayoutParams(dp(size), dp(size)).apply { leftMargin = dp(7) }
+    }
+
+    private fun smallButton(value: String, action: () -> Unit) = TextView(this).apply {
+        text = value
+        textSize = 9f
+        gravity = Gravity.CENTER
+        setTextColor(gold)
+        setPadding(dp(8), dp(7), dp(8), dp(7))
+        background = rounded(Color.rgb(35, 28, 18), 8, gold)
+        setOnClickListener { action() }
+    }
+
+    private fun rounded(color: Int, radius: Int, stroke: Int? = null) = GradientDrawable().apply {
+        setColor(color)
+        cornerRadius = dp(radius).toFloat()
+        if (stroke != null) setStroke(dp(1), stroke)
+    }
+
+    private fun copyIp() {
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("Server IP", serverAddress))
+        toast("IP сервера скопирован")
     }
 
     private fun saveNickname() {
@@ -158,28 +200,94 @@ class MainActivity : Activity() {
             .putString("nickname", nickname.text.toString().trim()).apply()
     }
 
-    private fun copyAddress() {
-        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("SAMP server", serverAddress))
-        Toast.makeText(this, "IP сервера скопирован", Toast.LENGTH_SHORT).show()
+    private fun connect() {
+        copyIp()
+        try {
+            startActivity(Intent.createChooser(
+                Intent(Intent.ACTION_VIEW, Uri.parse("samp://$serverAddress")),
+                "Открыть совместимый SAMP Mobile клиент"
+            ))
+        } catch (_: Exception) {
+            toast("IP скопирован. Добавьте сервер в SAMP Mobile вручную.")
+        }
     }
 
-    private fun button(label: String, color: Int, textColor: Int) = Button(this).apply {
-        text = label; textSize = 12f; setTextColor(textColor)
-        backgroundTintList = ColorStateList.valueOf(color); isAllCaps = false
-    }
+    private fun toast(message: String) =
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 
-    private fun text(value: String, size: Int, color: Int, bold: Boolean) = TextView(this).apply {
-        text = value; textSize = size.toFloat(); setTextColor(color)
-        if (bold) setTypeface(typeface, Typeface.BOLD)
-    }
-
-    private fun rounded(color: Int, radius: Int, stroke: Int? = null) = GradientDrawable().apply {
-        setColor(color); cornerRadius = dp(radius).toFloat()
-        if (stroke != null) setStroke(dp(1), stroke)
-    }
-
-    private fun match() = LinearLayout.LayoutParams(-1, -2)
-    private fun wrap() = LinearLayout.LayoutParams(-2, -2)
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+
+    private inner class KaliningradBackdropView : View(this@MainActivity) {
+        private val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        override fun onDraw(canvas: Canvas) {
+            super.onDraw(canvas)
+            val w = width.toFloat()
+            val h = height.toFloat()
+            p.shader = LinearGradient(0f, 0f, w, h,
+                intArrayOf(Color.rgb(18, 21, 38), Color.rgb(72, 47, 49), Color.rgb(7, 12, 18)),
+                null, Shader.TileMode.CLAMP)
+            canvas.drawRect(0f, 0f, w, h, p)
+            p.shader = null
+
+            // Twilight glow and distant city skyline
+            p.color = Color.argb(65, 255, 142, 55)
+            canvas.drawCircle(w * .46f, h * .48f, h * .43f, p)
+            val ground = h * .67f
+            p.color = Color.rgb(12, 18, 25)
+            val buildings = floatArrayOf(.02f,.11f,.18f,.25f,.34f,.41f,.51f,.59f,.68f,.76f,.86f,.94f)
+            buildings.forEachIndexed { i, x ->
+                val bw = w * .045f
+                val bh = h * (.14f + (i % 4) * .055f)
+                canvas.drawRect(w*x, ground-bh, w*x+bw, ground, p)
+                p.color = Color.argb(190, 255, 174, 75)
+                for (r in 0..3) for (c in 0..2) {
+                    canvas.drawRect(w*x+8+c*dp(9), ground-bh+8+r*dp(10),
+                        w*x+12+c*dp(9), ground-bh+12+r*dp(10), p)
+                }
+                p.color = Color.rgb(12, 18, 25)
+            }
+            // Cathedral silhouette and clock tower
+            p.color = Color.rgb(17, 18, 25)
+            val cx = w * .62f
+            val base = ground
+            canvas.drawRect(cx-h*.11f, base-h*.27f, cx+h*.11f, base, p)
+            val tower = Path().apply {
+                moveTo(cx-h*.055f, base-h*.27f); lineTo(cx, base-h*.57f)
+                lineTo(cx+h*.055f, base-h*.27f); close()
+            }
+            canvas.drawPath(tower, p)
+            p.color = Color.rgb(255, 160, 55)
+            canvas.drawCircle(cx, base-h*.34f, h*.018f, p)
+            // River and reflections
+            p.shader = LinearGradient(0f, ground, 0f, h, intArrayOf(Color.rgb(26,35,47), Color.rgb(5,9,14)), null, Shader.TileMode.CLAMP)
+            canvas.drawRect(0f, ground, w, h, p)
+            p.shader = null
+            p.color = Color.argb(95, 255, 151, 56)
+            for (i in 0..24) {
+                val y = ground + (i * h * .012f)
+                canvas.drawRect(w*.18f, y, w*(.35f + (i%4)*.06f), y+dp(1), p)
+                canvas.drawRect(w*.58f, y+dp(3), w*(.73f+(i%3)*.04f), y+dp(4), p)
+            }
+            // Roadside sports car silhouette
+            val carY = h*.79f
+            p.color = Color.rgb(5, 7, 11)
+            val car = Path().apply {
+                moveTo(w*.04f, carY); lineTo(w*.10f, carY-h*.07f)
+                lineTo(w*.19f, carY-h*.12f); lineTo(w*.34f, carY-h*.12f)
+                lineTo(w*.43f, carY-h*.04f); lineTo(w*.47f, carY)
+                close()
+            }
+            canvas.drawPath(car, p)
+            canvas.drawCircle(w*.15f, carY, h*.045f, p)
+            canvas.drawCircle(w*.37f, carY, h*.045f, p)
+            p.color = Color.rgb(255, 164, 58)
+            canvas.drawRect(w*.40f, carY-h*.045f, w*.445f, carY-h*.033f, p)
+            // Dark vignette for readable controls
+            p.shader = LinearGradient(0f, 0f, w, 0f,
+                intArrayOf(Color.argb(10,0,0,0), Color.argb(45,0,0,0), Color.argb(225,0,0,0)),
+                null, Shader.TileMode.CLAMP)
+            canvas.drawRect(0f, 0f, w, h, p)
+            p.shader = null
+        }
+    }
 }
