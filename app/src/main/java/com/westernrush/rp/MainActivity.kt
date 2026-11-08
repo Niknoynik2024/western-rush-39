@@ -40,8 +40,8 @@ class MainActivity : Activity() {
         }
         header.addView(label("WESTERN RUSH RP", 15, Color.WHITE, true), LinearLayout.LayoutParams(0, -2, 1f))
         header.addView(label("ИГРАЙ. ОБЩАЙСЯ. РАЗВИВАЙСЯ.", 11, gold, true))
-        header.addView(roundButton("⚙", 38) { toast("Настройки появятся в следующем обновлении") })
-        header.addView(roundButton("i", 38) { toast("Western Rush RP Mobile • Калининград") })
+        header.addView(roundButton("⚙", 38) { showSettings() })
+        header.addView(roundButton("i", 38) { showAbout() })
         page.addView(header, LinearLayout.LayoutParams(-1, dp(42)))
 
         val main = LinearLayout(this).apply {
@@ -134,12 +134,20 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
             background = rounded(Color.argb(225, 9, 11, 15), 13, Color.rgb(80, 57, 28))
         }
-        val navItems = listOf("⌂\nГлавная", "▤\nНовости", "★\nДостижения", "▣\nДонат", "☏\nПоддержка")
+        val navItems = listOf("⌂\nГлавная", "♙\nПрофиль", "▤\nСервер", "⟳\nОбновить", "⚙\nНастройки")
         navItems.forEachIndexed { index, item ->
             val itemView = label(item, 11, if (index == 0) gold else Color.LTGRAY, index == 0).apply {
                 gravity = Gravity.CENTER
                 setPadding(dp(6), dp(3), dp(6), dp(3))
-                setOnClickListener { toast(if (index == 0) "Вы на главной" else "Раздел «${item.substringAfter('\n')}» скоро появится") }
+                setOnClickListener {
+                    when (index) {
+                        0 -> toast("Вы на главной")
+                        1 -> showProfile()
+                        2 -> showServer()
+                        3 -> checkUpdates()
+                        4 -> showSettings()
+                    }
+                }
             }
             nav.addView(itemView, LinearLayout.LayoutParams(0, -1, 1f))
         }
@@ -212,6 +220,95 @@ class MainActivity : Activity() {
         } catch (_: Exception) {
             toast("IP скопирован. Добавьте сервер в SAMP Mobile вручную.")
         }
+    }
+
+    private fun showProfile() {
+        val input = EditText(this).apply {
+            hint = "Например, Ivanov_KLD"
+            setSingleLine(true)
+            setText(getSharedPreferences("western_rush", MODE_PRIVATE).getString("nickname", ""))
+        }
+        val wrap = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(22), dp(8), dp(22), 0)
+            addView(label("Твой игровой никнейм", 12, Color.LTGRAY, false))
+            addView(input)
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Профиль игрока")
+            .setView(wrap)
+            .setPositiveButton("СОХРАНИТЬ") { _, _ ->
+                val value = input.text.toString().trim()
+                if (value.isNotBlank()) {
+                    getSharedPreferences("western_rush", MODE_PRIVATE).edit().putString("nickname", value).apply()
+                    nickname.setText(value)
+                    toast("Профиль сохранён: $value")
+                } else toast("Введи игровой никнейм")
+            }
+            .setNegativeButton("ОТМЕНА", null)
+            .show()
+    }
+
+    private fun showServer() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Сервер Калининград RP")
+            .setMessage("Western Rush RP Mobile\nАдрес: $serverAddress\nРежим: RolePlay")
+            .setPositiveButton("КОПИРОВАТЬ IP") { _, _ -> copyIp() }
+            .setNeutralButton("ГОТОВО", null)
+            .show()
+    }
+
+    private fun checkUpdates() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Обновления лаунчера")
+            .setMessage("Открой страницу проекта на GitHub, чтобы проверить последние сборки и доступные обновления.")
+            .setPositiveButton("ОТКРЫТЬ GITHUB") { _, _ ->
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Niknoynik2024/western-rush-39/releases")))
+                } catch (_: Exception) { toast("Не удалось открыть страницу обновлений") }
+            }
+            .setNegativeButton("ПОЗЖЕ", null)
+            .show()
+    }
+
+    private fun showSettings() {
+        val prefs = getSharedPreferences("western_rush", MODE_PRIVATE)
+        val sound = android.widget.CheckBox(this).apply {
+            text = "Звуковые эффекты интерфейса"
+            setTextColor(Color.WHITE)
+            isChecked = prefs.getBoolean("ui_sounds", true)
+        }
+        val haptics = android.widget.CheckBox(this).apply {
+            text = "Вибрация при нажатии"
+            setTextColor(Color.WHITE)
+            isChecked = prefs.getBoolean("haptics", false)
+        }
+        val wrap = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(22), dp(8), dp(22), 0)
+            addView(sound)
+            addView(haptics)
+            addView(label("Игровой сервер: $serverAddress", 12, Color.LTGRAY, false))
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Настройки лаунчера")
+            .setView(wrap)
+            .setPositiveButton("СОХРАНИТЬ") { _, _ ->
+                prefs.edit().putBoolean("ui_sounds", sound.isChecked)
+                    .putBoolean("haptics", haptics.isChecked).apply()
+                toast("Настройки сохранены")
+            }
+            .setNeutralButton("КОПИРОВАТЬ IP") { _, _ -> copyIp() }
+            .setNegativeButton("ЗАКРЫТЬ", null)
+            .show()
+    }
+
+    private fun showAbout() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("SAMP MOBILE RP")
+            .setMessage("Western Rush RP • Калининград\nСервер: $serverAddress\nЛаунчер версии 1.0.0")
+            .setPositiveButton("ПОНЯТНО", null)
+            .show()
     }
 
     private fun toast(message: String) =
