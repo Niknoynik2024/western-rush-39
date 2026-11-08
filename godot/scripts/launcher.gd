@@ -27,8 +27,8 @@ func _build_interface() -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
 
-	var top := _panel("СЕРВЕР: ПОДГОТОВКА     •     WESTERN RUSH RP", Color(0.025, 0.035, 0.055, 0.88))
-	top.anchor_left = 0.59
+	var top := _panel("●  WESTERN RUSH RP   •   КАЛИНИНГРАД", Color(0.025, 0.035, 0.055, 0.88))
+	top.anchor_left = 0.61
 	top.anchor_right = 0.97
 	top.anchor_top = 0.035
 	top.anchor_bottom = 0.12
@@ -36,9 +36,9 @@ func _build_interface() -> void:
 
 	var logo := Label.new()
 	logo.text = "WESTERN\nRUSH RP"
-	logo.position = Vector2(42, 34)
+	logo.position = Vector2(42, 30)
 	logo.size = Vector2(390, 175)
-	logo.add_theme_font_size_override("font_size", 58)
+	logo.add_theme_font_size_override("font_size", 66)
 	logo.add_theme_color_override("font_color", Color.WHITE)
 	logo.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 	logo.add_theme_constant_override("shadow_offset_x", 4)
@@ -46,23 +46,23 @@ func _build_interface() -> void:
 	add_child(logo)
 
 	var subtitle := Label.new()
-	subtitle.text = "ROLEPLAY  •  KALININGRAD"
+	subtitle.text = "HALLOWEEN ROLEPLAY  •  KALININGRAD"
 	subtitle.position = Vector2(48, 204)
 	subtitle.add_theme_font_size_override("font_size", 17)
 	subtitle.add_theme_color_override("font_color", Color(0.86, 0.9, 0.96))
 	add_child(subtitle)
 
 	var nick_panel := _panel("", Color(0.025, 0.03, 0.045, 0.88))
-	nick_panel.position = Vector2(32, 285)
-	nick_panel.size = Vector2(355, 84)
+	nick_panel.position = Vector2(1110, 355)
+	nick_panel.size = Vector2(430, 84)
 	add_child(nick_panel)
 	var nick_title := _label("ВАШ НИКНЕЙМ", 15, Color(0.7, 0.76, 0.84))
-	nick_title.position = Vector2(54, 296)
-	nick_title.size = Vector2(300, 22)
+	nick_title.position = Vector2(1132, 366)
+	nick_title.size = Vector2(380, 22)
 	add_child(nick_title)
 	nick_edit = LineEdit.new()
-	nick_edit.position = Vector2(50, 320)
-	nick_edit.size = Vector2(300, 34)
+	nick_edit.position = Vector2(1128, 390)
+	nick_edit.size = Vector2(390, 34)
 	nick_edit.placeholder_text = "Введите игровой ник"
 	nick_edit.text = _load_nick()
 	nick_edit.max_length = 24
@@ -70,15 +70,15 @@ func _build_interface() -> void:
 	add_child(nick_edit)
 
 	var server_panel := _panel("", Color(0.025, 0.03, 0.045, 0.88))
-	server_panel.position = Vector2(32, 382)
-	server_panel.size = Vector2(355, 92)
+	server_panel.position = Vector2(1110, 250)
+	server_panel.size = Vector2(430, 82)
 	add_child(server_panel)
 	var server_title := _label("СЕРВЕР №1", 21, Color.WHITE)
-	server_title.position = Vector2(54, 394)
-	server_title.size = Vector2(300, 28)
+	server_title.position = Vector2(1132, 260)
+	server_title.size = Vector2(380, 28)
 	add_child(server_title)
 	var server_sub := _label("Калининград  •  Тестовый мир", 15, Color(0.7, 0.77, 0.86))
-	server_sub.position = Vector2(54, 427)
+	server_sub.position = Vector2(1132, 294)
 	server_sub.size = Vector2(300, 24)
 	add_child(server_sub)
 
@@ -86,10 +86,10 @@ func _build_interface() -> void:
 	car.texture = CAR_TEXTURE
 	car.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	car.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
-	car.anchor_left = 0.29
-	car.anchor_right = 0.77
-	car.anchor_top = 0.46
-	car.anchor_bottom = 0.89
+	car.anchor_left = 0.16
+	car.anchor_right = 0.70
+	car.anchor_top = 0.40
+	car.anchor_bottom = 0.88
 	car.offset_left = 0
 	car.offset_right = 0
 	car.offset_top = 0
@@ -107,18 +107,18 @@ func _build_interface() -> void:
 		wheels.append(wheel)
 
 	var play := _button("▶   ИГРАТЬ", Color(0.78, 0.035, 0.055), Color(1, 0.12, 0.14))
-	play.anchor_left = 0.73
+	play.anchor_left = 0.70
 	play.anchor_right = 0.97
-	play.anchor_top = 0.69
-	play.anchor_bottom = 0.84
+	play.anchor_top = 0.57
+	play.anchor_bottom = 0.72
 	play.pressed.connect(_on_play_pressed)
 	add_child(play)
 
 	info_label = _label("Добро пожаловать в Western Rush RP!\nТвой город начинается здесь.", 17, Color.WHITE)
 	info_label.anchor_left = 0.035
 	info_label.anchor_right = 0.36
-	info_label.anchor_top = 0.70
-	info_label.anchor_bottom = 0.84
+	info_label.anchor_top = 0.73
+	info_label.anchor_bottom = 0.86
 	info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(info_label)
 
@@ -132,7 +132,7 @@ func _build_interface() -> void:
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	menu.add_theme_constant_override("separation", 8)
 	nav.add_child(menu)
-	for item in ["⌂  ГЛАВНАЯ", "▤  НОВОСТИ", "⚙  НАСТРОЙКИ", "♙  ПРОФИЛЬ"]:
+	for item in ["⌂  ГЛАВНАЯ", "▤  НОВОСТИ", "🏆  ДОСТИЖЕНИЯ", "⚙  НАСТРОЙКИ", "♙  ПРОФИЛЬ", "♥  ДОНАТ", "?  ПОДДЕРЖКА"]:
 		var b := Button.new()
 		b.text = item
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
