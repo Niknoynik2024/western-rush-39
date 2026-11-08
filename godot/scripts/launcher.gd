@@ -174,6 +174,15 @@ func _load_nick() -> String:
 func _panel(text_value: String, color: Color) -> Panel:
 	var p := Panel.new()
 	p.add_theme_stylebox_override("panel", _style(color, 14))
+	if not text_value.is_empty():
+		var label := Label.new()
+		label.text = text_value
+		label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", 18)
+		label.add_theme_color_override("font_color", Color.WHITE)
+		p.add_child(label)
 	return p
 
 func _style(color: Color, radius: int) -> StyleBoxFlat:
