@@ -2,11 +2,13 @@ extends Control
 
 const CITY_TEXTURE = preload("res://art/launcher_city.svg")
 const CAR_TEXTURE = preload("res://art/launcher_car.svg")
+const WHEEL_TEXTURE = preload("res://art/launcher_wheel.svg")
 const MAP_SCENE = "res://scenes/kld_map.tscn"
 
 var nick_edit: LineEdit
 var info_label: Label
 var car: TextureRect
+var wheels: Array[TextureRect] = []
 
 func _ready() -> void:
 	_build_interface()
@@ -93,6 +95,16 @@ func _build_interface() -> void:
 	car.offset_top = 0
 	car.offset_bottom = 0
 	add_child(car)
+	for wheel_position in [Vector2(155, 210), Vector2(520, 210)]:
+		var wheel := TextureRect.new()
+		wheel.texture = WHEEL_TEXTURE
+		wheel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		wheel.stretch_mode = TextureRect.STRETCH_SCALE
+		wheel.size = Vector2(112, 112)
+		wheel.position = wheel_position
+		wheel.pivot_offset = wheel.size / 2.0
+		car.add_child(wheel)
+		wheels.append(wheel)
 
 	var play := _button("▶   ИГРАТЬ", Color(0.78, 0.035, 0.055), Color(1, 0.12, 0.14))
 	play.anchor_left = 0.73
@@ -138,6 +150,10 @@ func _build_interface() -> void:
 	version.anchor_bottom = 0.88
 	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	add_child(version)
+
+func _process(delta: float) -> void:
+	for wheel in wheels:
+		wheel.rotation += delta * 5.5
 
 func _start_car_animation() -> void:
 	var tween := create_tween().set_loops()
