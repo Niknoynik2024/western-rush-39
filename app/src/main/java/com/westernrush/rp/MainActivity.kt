@@ -26,11 +26,13 @@ class MainActivity : Activity() {
     private val serverAddress = "88.119.171.76:7777"
     private lateinit var nickname: EditText
     private var pendingUpdateDownload = -1L
+    private var pendingClientDownload = -1L
     private val updateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action != DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
-            if (id != pendingUpdateDownload) return
+            if (id != pendingUpdateDownload && id != pendingClientDownload) return
+            val isClient = id == pendingClientDownload
             val manager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
             manager.query(DownloadManager.Query().setFilterById(id)).use { cursor ->
                 if (cursor != null && cursor.moveToFirst()) {
@@ -43,6 +45,7 @@ class MainActivity : Activity() {
                                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             }
                             startActivity(install)
+                            if (isClient) toast("Установи SAMP Mobile, затем вернись в лаунчер")
                         } else toast("APK загружен, но Android не вернул файл установки")
                     } else toast("Не удалось загрузить обновление. Проверь интернет и повтори попытку.")
                 }
@@ -255,7 +258,8 @@ class MainActivity : Activity() {
             android.app.AlertDialog.Builder(this)
                 .setTitle("SAMP Mobile не найден")
                 .setMessage("На телефоне не обнаружен совместимый игровой клиент. IP сервера: $serverAddress\n\nПришли проверенную ссылку на APK клиента — добавим кнопку скачивания и проверку установки.")
-                .setPositiveButton("КОПИРОВАТЬ IP") { _, _ -> copyIp() }
+                .setPositiveButton("СКАЧАТЬ SAMP MOBILE") { _, _ -> downloadSampClient() }
+                .setNeutralButton("КОПИРОВАТЬ IP") { _, _ -> copyIp() }
                 .setNegativeButton("ЗАКРЫТЬ", null)
                 .show()
             return
@@ -299,8 +303,73 @@ class MainActivity : Activity() {
             .setTitle("Сервер Калининград RP")
             .setMessage("Western Rush RP Mobile\nАдрес: $serverAddress\nРежим: RolePlay")
             .setPositiveButton("КОПИРОВАТЬ IP") { _, _ -> copyIp() }
-            .setNeutralButton("ГОТОВО", null)
+            .setNeutralButton("СКАЧАТЬ SAMP MOBILE") { _, _ -> downloadSampClient() }
+            .setNegativeButton("ЗАКРЫТЬ", null)
             .show()
+    }
+
+    private fun downloadSampClient() {
+        toast("Ищем последнюю версию SAMP Mobile…")
+        Thread {
+            var connection: HttpURLConnection? = null
+            try {
+                connection = (URL("https://api.github.com/repos/SA-MP-Android/App/releases/latest").openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 12000
+                    readTimeout = 12000
+                    setRequestProperty("Accept", "application/vnd.github+json")
+                    setRequestProperty("User-Agent", "WesternRushRP-Android")
+                }
+                if (connection.responseCode !in 200..299) throw IllegalStateException("HTTP " + connection.responseCode)
+                val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+                val tag = json.optString("tag_name", "latest")
+                val assets = json.optJSONArray("assets")
+                var apkUrl: String? = null
+                var apkName = "app-universal-release.apk"
+                if (assets != null) {
+                    for (i in 0 until assets.length()) {
+                        val asset = assets.getJSONObject(i)
+                        if (asset.optString("name") == "app-universal-release.apk") {
+                            apkUrl = asset.optString("browser_download_url")
+                            apkName = asset.optString("name")
+                            break
+                        }
+                    }
+                }
+                runOnUiThread {
+                    if (apkUrl.isNullOrBlank()) {
+                        toast("Не нашли универсальный APK SAMP Mobile")
+                    } else {
+                        android.app.AlertDialog.Builder(this)
+                            .setTitle("SAMP Mobile " + tag)
+                            .setMessage("Загрузить универсальный APK клиента из GitHub Releases? Это отдельное приложение; GTA: San Andreas в него не входит.")
+                            .setPositiveButton("СКАЧАТЬ") { _, _ -> downloadClientApk(apkUrl!!, apkName) }
+                            .setNegativeButton("ОТМЕНА", null)
+                            .show()
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread { toast("Не удалось получить клиент: " + (e.message ?: "ошибка сети")) }
+            } finally {
+                connection?.disconnect()
+            }
+        }.start()
+    }
+
+    private fun downloadClientApk(url: String, fileName: String) {
+        try {
+            val request = DownloadManager.Request(Uri.parse(url)).apply {
+                setTitle("SAMP Mobile — игровой клиент")
+                setDescription("Загрузка " + fileName)
+                setMimeType("application/vnd.android.package-archive")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(false)
+            }
+            pendingClientDownload = (getSystemService(DOWNLOAD_SERVICE) as DownloadManager).enqueue(request)
+            toast("Клиент загружается. После загрузки Android предложит установить APK.")
+        } catch (e: Exception) {
+            toast("Не удалось начать загрузку клиента: " + (e.message ?: "ошибка"))
+        }
     }
 
     private fun checkUpdates() {
