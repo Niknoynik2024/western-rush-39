@@ -9,7 +9,5 @@
 <path d="M120 218l82-6" stroke="#fff" stroke-width="8" opacity=".9"/><path d="M710 220l144-10" stroke="#fff" stroke-width="8" opacity=".9"/>
 <path d="M250 265h390" stroke="#aebdca" stroke-width="4" opacity=".4"/>
 <path d="M415 280h100v38H415z" fill="#c5d2dc" opacity=".8"/><text x="465" y="307" font-family="Arial" font-size="25" font-weight="bold" text-anchor="middle" fill="#182331">WRP 001</text>
-<g fill="#05070b" stroke="#7b8794" stroke-width="10"><circle cx="260" cy="270" r="64"/><circle cx="690" cy="270" r="64"/></g>
-<g fill="#aebbc8" stroke="#313d4b" stroke-width="7"><circle cx="260" cy="270" r="35"/><circle cx="690" cy="270" r="35"/></g>
-<g stroke="#dbe4ed" stroke-width="6"><path d="M260 238v64M228 270h64M237 247l46 46M283 247l-46 46M690 238v64M658 270h64M667 247l46 46M713 247l-46 46"/></g>
+
 </svg>
