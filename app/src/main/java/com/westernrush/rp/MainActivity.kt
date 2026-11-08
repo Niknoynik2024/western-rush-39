@@ -243,14 +243,27 @@ class MainActivity : Activity() {
     }
 
     private fun connect() {
-        copyIp()
+        val playerName = nickname.text.toString().trim()
+        if (playerName.isBlank()) {
+            toast("Сначала введи игровой никнейм")
+            nickname.requestFocus()
+            return
+        }
+        saveNickname()
+        val gameIntent = Intent(Intent.ACTION_VIEW, Uri.parse("samp://$serverAddress"))
+        if (gameIntent.resolveActivity(packageManager) == null) {
+            android.app.AlertDialog.Builder(this)
+                .setTitle("SAMP Mobile не найден")
+                .setMessage("На телефоне не обнаружен совместимый игровой клиент. IP сервера: $serverAddress\n\nПришли проверенную ссылку на APK клиента — добавим кнопку скачивания и проверку установки.")
+                .setPositiveButton("КОПИРОВАТЬ IP") { _, _ -> copyIp() }
+                .setNegativeButton("ЗАКРЫТЬ", null)
+                .show()
+            return
+        }
         try {
-            startActivity(Intent.createChooser(
-                Intent(Intent.ACTION_VIEW, Uri.parse("samp://$serverAddress")),
-                "Открыть совместимый SAMP Mobile клиент"
-            ))
+            startActivity(Intent.createChooser(gameIntent, "Открыть SAMP Mobile клиент"))
         } catch (_: Exception) {
-            toast("IP скопирован. Добавьте сервер в SAMP Mobile вручную.")
+            toast("Не удалось открыть игровой клиент")
         }
     }
 
