@@ -2,6 +2,10 @@
 
 Original 3D roleplay game made with Godot 4, set in a Kaliningrad-inspired city.
 
+## Launcher
+
+The project now starts with a landscape 16:9 launcher featuring a custom night-city backdrop, Western Rush RP branding, editable/saved nickname, test-server information, animated vehicle movement, navigation tabs, and a Play button that opens the KLD map. Server population/online status is intentionally not fabricated; live server integration is a later task.
+
 ## Open the project
 
 1. Install Godot 4.3 or newer.
@@ -11,23 +15,18 @@ Original 3D roleplay game made with Godot 4, set in a Kaliningrad-inspired city.
 
 ## Current prototype
 
+- Landscape launcher with animated car and nickname persistence.
+- Play button opens the playable Kaliningrad map.
 - Procedural 3D city blockout with the Pregolya river and three bridges.
 - North, central, east, west, south and industrial districts.
 - Placeholder landmarks: Victory Square, Prospect Mira, Cathedral, Fish Village, bus station, airport, hospital and police.
 - Player character with collision and gravity.
-- Third-person follow camera and basic daylight/ambient lighting.
+- Third-person follow camera and daylight/ambient lighting.
 - Android-style on-screen directional controls with multi-touch support.
 - Sprint button; Shift also works when testing with a keyboard.
 
 ## Current status
 
-The project now has the first playable mobile-control pass. It is still a prototype: city buildings are procedural placeholders, and vehicles, missions, NPCs, account/server systems, sound, performance profiling and Android export configuration remain to be implemented.
+The launcher UI is a functional first pass. News/settings/profile panels currently show informational placeholders. Live server status, player count, account authentication, a drivable vehicle, missions, NPCs, sound, performance profiling and final Android device testing remain future work.
 
-**Important:** the separate `app/` Android launcher APK is not this Godot game. A real game APK must be exported from this `godot/` project with Godot's Android export templates and Android SDK configured.
-
-## Next development milestones
-
-1. Configure a repeatable Android export and produce a test APK from this Godot project.
-2. Add a proper virtual joystick, camera controls and a player animation.
-3. Add the first drivable vehicle and a small interaction/mission loop.
-4. Optimize the city for Android devices (draw calls, collision, visibility and memory).
+A real game APK must be exported from this `godot/` project with Godot's Android export templates and Android SDK configured.
