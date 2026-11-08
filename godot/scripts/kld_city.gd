@@ -733,16 +733,26 @@ func _build_neighborhood_life() -> void:
         _visual_box(self, "Courtyard_Bench_Seat", Vector3(bench_x, 0.85, 92), Vector3(3.2, 0.25, 0.75), Color("#765b43"))
         _visual_box(self, "Courtyard_Bench_Legs", Vector3(bench_x, 0.48, 92), Vector3(2.8, 0.65, 0.16), dark_trim)
 
-    # Low-rise neighborhood shops with clear storefront glazing and sign bands.
-    var shop_positions := [Vector3(78, 5.5, 57), Vector3(98, 6.5, 57), Vector3(118, 5.5, 57)]
-    var shop_names := ["ПРОДУКТЫ", "АПТЕКА", "МАГАЗИН"]
+    # Four recognizable supermarket storefronts: Vester, Pyaterochka, Pobeda and SPAR.
+    var shop_positions := [
+        Vector3(60, 5.5, 57), Vector3(82, 5.5, 57),
+        Vector3(104, 5.5, 57), Vector3(126, 5.5, 57)
+    ]
+    var shop_names := ["ВЕСТЕР", "ПЯТЁРОЧКА", "ПОБЕДА", "SPAR"]
+    var sign_colors := [
+        Color("#263d79"), Color("#d92732"),
+        Color("#c72c36"), Color("#168348")
+    ]
+    var facade_colors := [brick, Color("#c2b6a3"), Color("#b3aaa0"), Color("#c8c0ad")]
     for i in range(shop_positions.size()):
         var p: Vector3 = shop_positions[i]
-        _building_box(self, "Neighborhood_Shop", p, Vector3(16, p.y * 2.0, 12), [brick, Color("#c2b6a3"), Color("#b3aaa0")][i])
-        _visual_box(self, "Shopfront_Glass", Vector3(p.x, 2.3, p.z - 6.12), Vector3(9.0, 3.2, 0.12), glass)
-        _visual_box(self, "Shopfront_Door", Vector3(p.x + 5.5, 2.1, p.z - 6.2), Vector3(1.4, 3.6, 0.16), dark_trim)
-        _visual_box(self, "Shop_Sign_Band", Vector3(p.x, 4.5, p.z - 6.25), Vector3(12.0, 0.65, 0.2), Color("#e0d3b8"))
-        _label(self, shop_names[i], Vector3(p.x, 5.0, p.z - 6.6), Color("#3d4142"))
+        _building_box(self, "Supermarket_" + str(i), p, Vector3(18, 11, 13), facade_colors[i])
+        _visual_box(self, "Supermarket_Glassfront", Vector3(p.x, 2.3, p.z - 6.62), Vector3(12.0, 3.2, 0.12), glass)
+        _visual_box(self, "Supermarket_Entrance", Vector3(p.x + 6.7, 2.1, p.z - 6.7), Vector3(1.5, 3.6, 0.16), dark_trim)
+        _visual_box(self, "Supermarket_Sign_Backplate", Vector3(p.x, 4.8, p.z - 6.78), Vector3(15.5, 1.15, 0.24), sign_colors[i])
+        _label(self, shop_names[i], Vector3(p.x, 4.85, p.z - 6.96), Color.WHITE)
+        # Illuminated-looking brand strip above the entrance.
+        _visual_box(self, "Supermarket_Sign_Light", Vector3(p.x, 5.55, p.z - 6.72), Vector3(14.5, 0.08, 0.12), Color("#f1e5c5"))
 
     # Covered bus shelter, stop pole and bench beside the local access road.
     _visual_box(self, "Neighborhood_Bus_Stop_Base", Vector3(62, 0.38, 72), Vector3(8, 0.25, 3), concrete)
