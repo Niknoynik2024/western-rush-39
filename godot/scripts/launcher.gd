@@ -4,11 +4,13 @@ const CITY_TEXTURE = preload("res://art/launcher_city.svg")
 const CAR_TEXTURE = preload("res://art/launcher_car.svg")
 const WHEEL_TEXTURE = preload("res://art/launcher_wheel.svg")
 const MAP_SCENE = "res://scenes/kld_map.tscn"
+const INTRO_SCENE = "res://scenes/intro.tscn"
 
 var nick_edit: LineEdit
 var info_label: Label
 var car: TextureRect
 var wheels: Array[TextureRect] = []
+var replay_intro_button: Button
 
 func _ready() -> void:
 	_build_interface()
@@ -114,6 +116,16 @@ func _build_interface() -> void:
 	play.pressed.connect(_on_play_pressed)
 	add_child(play)
 
+	replay_intro_button = _button("▶  ПОВТОРИТЬ ИНТРО", Color(0.16, 0.19, 0.25), Color(0.28, 0.32, 0.4))
+	replay_intro_button.anchor_left = 0.70
+	replay_intro_button.anchor_right = 0.97
+	replay_intro_button.anchor_top = 0.735
+	replay_intro_button.anchor_bottom = 0.825
+	replay_intro_button.add_theme_font_size_override("font_size", 19)
+	replay_intro_button.visible = false
+	replay_intro_button.pressed.connect(_play_intro.bind(true))
+	add_child(replay_intro_button)
+
 	info_label = _label("Добро пожаловать в Western Rush RP!\nТвой город начинается здесь.", 17, Color.WHITE)
 	info_label.anchor_left = 0.035
 	info_label.anchor_right = 0.36
@@ -168,7 +180,7 @@ func _on_play_pressed() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("player", "nickname", nick)
 	cfg.save("user://western_rush.cfg")
-	get_tree().change_scene_to_file(MAP_SCENE)
+	_play_intro(false)
 
 func _on_menu_pressed(item: String) -> void:
 	match item:
@@ -177,7 +189,8 @@ func _on_menu_pressed(item: String) -> void:
 		"▤  НОВОСТИ":
 			info_label.text = "НОВОСТИ\nПроект находится в разработке. Скоро появятся первые события."
 		"⚙  НАСТРОЙКИ":
-			info_label.text = "НАСТРОЙКИ\nИгровые параметры будут доступны в следующем обновлении."
+			info_label.text = "НАСТРОЙКИ\nЗдесь можно повторно посмотреть вступительный ролик."
+			replay_intro_button.visible = true
 		"♙  ПРОФИЛЬ":
 			info_label.text = "ПРОФИЛЬ\nТвой ник: " + nick_edit.text
 
@@ -229,3 +242,13 @@ func _button(value: String, normal_color: Color, hover_color: Color) -> Button:
 	b.add_theme_stylebox_override("hover", _style(hover_color, 18))
 	b.add_theme_stylebox_override("pressed", _style(Color(0.48, 0.025, 0.04), 18))
 	return b
+
+
+func _play_intro(force_replay: bool = false) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load("user://western_rush.cfg")
+	var already_seen := bool(cfg.get_value("player", "intro_seen", false))
+	if (force_replay or not already_seen) and ResourceLoader.exists("res://art/western_rush_intro.ogv"):
+		get_tree().change_scene_to_file(INTRO_SCENE)
+	else:
+		get_tree().change_scene_to_file(MAP_SCENE)
