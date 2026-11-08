@@ -168,6 +168,7 @@ func _build_world() -> void:
     _build_fish_village()
     _build_street_details()
     _build_neighborhood_life()
+    _build_city_services()
 
     for x in range(-190, 191, 20):
         _visual_box(self, "Road_Marking", Vector3(x, 0.13, -48), Vector3(8, 0.025, 0.35), Color("#e6dfc9"))
@@ -771,6 +772,96 @@ func _build_neighborhood_life() -> void:
         _visual_box(self, "Bicycle_Rack", Vector3(rack_x, 0.8, 72), Vector3(0.12, 1.2, 1.2), Color("#555d63"))
 
     _label(self, "ЖИЛОЙ КВАРТАЛ • МАГАЗИНЫ • ОСТАНОВКА", Vector3(92, 20, 48), Color("#f0d5a2"))
+
+
+func _build_parked_car(parent: Node3D, car_name: String, pos: Vector3, body_color: Color) -> void:
+    var car := Node3D.new()
+    car.name = car_name
+    car.position = pos
+    parent.add_child(car)
+    _visual_box(car, "Body", Vector3(0, 0.72, 0), Vector3(4.1, 0.9, 1.9), body_color)
+    _visual_box(car, "Cabin", Vector3(-0.25, 1.35, 0), Vector3(2.0, 0.72, 1.55), Color("#34434b"))
+    _visual_box(car, "Windshield", Vector3(0.82, 1.34, 0), Vector3(0.08, 0.55, 1.42), Color("#829da5"))
+    _visual_box(car, "Front_Bumper", Vector3(2.08, 0.55, 0), Vector3(0.16, 0.3, 1.9), Color("#34383b"))
+    for wheel_x in [-1.25, 1.25]:
+        for wheel_z in [-1.0, 1.0]:
+            var wheel := MeshInstance3D.new()
+            var wheel_mesh := CylinderMesh.new()
+            wheel_mesh.top_radius = 0.38
+            wheel_mesh.bottom_radius = 0.38
+            wheel_mesh.height = 0.24
+            wheel.mesh = wheel_mesh
+            wheel.position = Vector3(wheel_x, 0.38, wheel_z)
+            wheel.rotation_degrees.z = 90
+            wheel.material_override = _mat(Color("#202326"))
+            car.add_child(wheel)
+
+
+func _build_city_services() -> void:
+    # Real-life parking: marked bays, parked vehicles, accessible bay and lighting.
+    var asphalt := Color("#34393d")
+    var concrete := Color("#aaa79d")
+    var white := Color("#e7e1d4")
+    var yellow := Color("#d8b64f")
+    _visual_box(self, "Shop_Parking_Asphalt", Vector3(112, 0.24, 94), Vector3(68, 0.14, 24), asphalt)
+    for x in range(80, 147, 8):
+        _visual_box(self, "Shop_Parking_Bay_Mark", Vector3(float(x), 0.34, 94), Vector3(0.14, 0.035, 18), white)
+    _visual_box(self, "Parking_Access_Aisle", Vector3(112, 0.34, 82), Vector3(68, 0.035, 0.18), white)
+    _visual_box(self, "Accessible_Parking_Bay", Vector3(142, 0.36, 94), Vector3(7.0, 0.04, 17), Color("#477da0"))
+    _label(self, "P ♿", Vector3(142, 0.55, 94), Color.WHITE)
+    _visual_box(self, "Shop_Parking_Pedestrian_Path", Vector3(112, 0.38, 78), Vector3(68, 0.12, 2.0), concrete)
+    var parked_colors := [Color("#a9b4b8"), Color("#263d79"), Color("#8d3432"), Color("#d2c6a9"), Color("#3e6252")]
+    var parked_x := [86.0, 98.0, 110.0, 122.0, 134.0]
+    for i in range(parked_x.size()):
+        _build_parked_car(self, "Parked_Car_%02d" % i, Vector3(parked_x[i], 0.35, 92.0), parked_colors[i])
+    for lamp_x in [78.0, 146.0]:
+        _visual_box(self, "Parking_Lamp_Post", Vector3(lamp_x, 3.5, 82), Vector3(0.18, 7.0, 0.18), Color("#34383b"))
+        _visual_box(self, "Parking_Lamp_Head", Vector3(lamp_x, 7.1, 82), Vector3(0.9, 0.3, 0.9), Color("#e7d6a4"))
+
+    # Shawarma takeaway with service window, menu board, canopy and outdoor tables.
+    var shawarma_pos := Vector3(153, 5.5, 57)
+    _building_box(self, "Shawarma_Pavilion", shawarma_pos, Vector3(16, 11, 12), Color("#c6b69a"))
+    _visual_box(self, "Shawarma_Front_Glass", Vector3(153, 2.5, 50.8), Vector3(10.5, 3.5, 0.12), Color("#526a75"))
+    _visual_box(self, "Shawarma_Service_Window", Vector3(153, 2.7, 50.65), Vector3(4.5, 2.0, 0.16), Color("#28343a"))
+    _visual_box(self, "Shawarma_Canopy", Vector3(153, 4.6, 50.0), Vector3(13.0, 0.35, 2.0), Color("#a83b32"))
+    _visual_box(self, "Shawarma_Sign_Backplate", Vector3(153, 5.2, 50.65), Vector3(13.5, 1.25, 0.25), Color("#8c2f27"))
+    _label(self, "ШАУРМА  •  24 ЧАСА", Vector3(153, 5.25, 50.42), Color.WHITE)
+    _visual_box(self, "Shawarma_Menu_Board", Vector3(162, 2.1, 51.0), Vector3(2.0, 2.8, 0.18), Color("#303438"))
+    for table_x in [147.0, 159.0]:
+        _visual_box(self, "Shawarma_Outdoor_Table", Vector3(table_x, 0.95, 43.0), Vector3(2.0, 0.18, 2.0), Color("#80684e"))
+        _visual_box(self, "Shawarma_Table_Leg", Vector3(table_x, 0.48, 43.0), Vector3(0.18, 0.9, 0.18), Color("#55585a"))
+
+    # Driving school and closed practice yard for the practical licence exam.
+    var school_pos := Vector3(-145, 6.0, 178)
+    _building_box(self, "Driving_School_Building", school_pos, Vector3(30, 12, 18), Color("#c5b69d"))
+    _visual_box(self, "Driving_School_Entrance", Vector3(-145, 2.3, 168.8), Vector3(4.0, 3.8, 0.18), Color("#34434b"))
+    _visual_box(self, "Driving_School_Sign_Plate", Vector3(-145, 5.8, 168.5), Vector3(25.0, 1.6, 0.25), Color("#315c77"))
+    _label(self, "АВТОШКОЛА • KLD", Vector3(-145, 5.9, 168.25), Color.WHITE)
+    _label(self, "ТЕОРИЯ  •  ПРАКТИКА  •  ЭКЗАМЕН", Vector3(-145, 15, 164), Color("#f0d5a2"))
+    _visual_box(self, "Driving_Exam_Ground", Vector3(-112, 0.18, 178), Vector3(46, 0.18, 48), Color("#555b5d"))
+    for x in [-132.0, -122.0, -112.0, -102.0, -92.0]:
+        _visual_box(self, "Driving_Exam_Bay_Line", Vector3(x, 0.31, 191), Vector3(0.14, 0.035, 13), white)
+    _visual_box(self, "Driving_Exam_Stop_Line", Vector3(-112, 0.32, 168), Vector3(34, 0.04, 0.5), yellow)
+    for cone_pos in [Vector3(-128, 0.8, 174), Vector3(-120, 0.8, 180), Vector3(-112, 0.8, 174), Vector3(-104, 0.8, 180), Vector3(-96, 0.8, 174)]:
+        var cone := MeshInstance3D.new()
+        var cone_mesh := CylinderMesh.new()
+        cone_mesh.top_radius = 0.08
+        cone_mesh.bottom_radius = 0.55
+        cone_mesh.height = 1.1
+        cone.mesh = cone_mesh
+        cone.position = cone_pos
+        cone.material_override = _mat(Color("#e47b35"))
+        add_child(cone)
+    _visual_box(self, "Driving_Exam_Reverse_Lane_Left", Vector3(-128, 0.35, 197), Vector3(0.18, 0.08, 12), white)
+    _visual_box(self, "Driving_Exam_Reverse_Lane_Right", Vector3(-112, 0.35, 197), Vector3(0.18, 0.08, 12), white)
+    _visual_box(self, "Driving_Exam_Start_Finish_Gate", Vector3(-112, 3.0, 164), Vector3(12, 0.25, 0.25), yellow)
+    for gate_x in [-118.0, -106.0]:
+        _visual_box(self, "Driving_Exam_Gate_Post", Vector3(gate_x, 1.5, 164), Vector3(0.25, 3.0, 0.25), yellow)
+    _label(self, "ПЛОЩАДКА СДАЧИ ПРАВ", Vector3(-112, 7, 157), Color("#f0d5a2"))
+    _label(self, "ЗМЕЙКА  •  ПАРКОВКА  •  ЗАДНИЙ ХОД", Vector3(-112, 5, 204), Color.WHITE)
+    _visual_box(self, "Driving_School_Access_Road", Vector3(-145, 0.16, 145), Vector3(18, 0.14, 44), asphalt)
+    _visual_box(self, "Driving_School_Sidewalk", Vector3(-132, 0.25, 166), Vector3(3.0, 0.2, 26), concrete)
+    _label(self, "АВТОШКОЛА →", Vector3(-145, 3.2, 139), Color("#f0d5a2"))
 
 
 func _build_vehicle() -> void:
