@@ -30,3 +30,16 @@ The project now starts with a landscape 16:9 launcher featuring a custom night-c
 The launcher UI is a functional first pass. News/settings/profile panels currently show informational placeholders. Live server status, player count, account authentication, a drivable vehicle, missions, NPCs, sound, performance profiling and final Android device testing remain future work.
 
 A real game APK must be exported from this `godot/` project with Godot's Android export templates and Android SDK configured.
+
+
+## Intro video integration
+
+The launcher now routes the first Play action through `scenes/intro.tscn` when
+`art/western_rush_intro.ogv` is present. The viewed flag is stored locally in
+`user://western_rush.cfg`; after playback (or Skip), the game opens the KLD map.
+The Settings tab exposes a button to replay the intro.
+
+**Media asset still required:** place the Android-compatible Ogg Theora video at
+`godot/art/western_rush_intro.ogv`. The prepared MP4 must be transcoded to OGV
+before it can be used by Godot's built-in VideoStreamPlayer. Until that asset is
+added, Play safely opens the map without showing the intro.
