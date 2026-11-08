@@ -13,11 +13,42 @@ import android.view.Gravity
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.*
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : Activity() {
     private val gold = Color.rgb(255, 166, 0)
     private val serverAddress = "88.119.171.76:7777"
     private lateinit var nickname: EditText
+    private var pendingUpdateDownload = -1L
+    private val updateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action != DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
+            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
+            if (id != pendingUpdateDownload) return
+            val manager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+            manager.query(DownloadManager.Query().setFilterById(id)).use { cursor ->
+                if (cursor != null && cursor.moveToFirst()) {
+                    val status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        val apkUri = manager.getUriForDownloadedFile(id)
+                        if (apkUri != null) {
+                            val install = Intent(Intent.ACTION_VIEW).apply {
+                                setDataAndType(apkUri, "application/vnd.android.package-archive")
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            startActivity(install)
+                        } else toast("APK загружен, но Android не вернул файл установки")
+                    } else toast("Не удалось загрузить обновление. Проверь интернет и повтори попытку.")
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,6 +184,7 @@ class MainActivity : Activity() {
         }
         page.addView(nav, LinearLayout.LayoutParams(-1, dp(50)))
         setContentView(frame)
+        registerReceiver(updateReceiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
     }
 
     private fun card(title: String): LinearLayout {
@@ -259,17 +291,90 @@ class MainActivity : Activity() {
     }
 
     private fun checkUpdates() {
-        android.app.AlertDialog.Builder(this)
-            .setTitle("Обновления лаунчера")
-            .setMessage("Открой страницу проекта на GitHub, чтобы проверить последние сборки и доступные обновления.")
-            .setPositiveButton("ОТКРЫТЬ GITHUB") { _, _ ->
-                try {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Niknoynik2024/western-rush-39/releases")))
-                } catch (_: Exception) { toast("Не удалось открыть страницу обновлений") }
+        toast("Проверяем обновления…")
+        Thread {
+            var connection: HttpURLConnection? = null
+            try {
+                connection = (URL("https://api.github.com/repos/Niknoynik2024/western-rush-39/releases/latest").openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 10000
+                    readTimeout = 10000
+                    setRequestProperty("Accept", "application/vnd.github+json")
+                    setRequestProperty("User-Agent", "WesternRushRP-Android")
+                }
+                if (connection.responseCode == 404) {
+                    runOnUiThread { showNoReleaseYet() }
+                    return@Thread
+                }
+                if (connection.responseCode !in 200..299) throw IllegalStateException("HTTP " + connection.responseCode)
+                val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+                val tag = json.optString("tag_name", "")
+                val assets = json.optJSONArray("assets")
+                var apkUrl: String? = null
+                var apkName = "WesternRush-update.apk"
+                if (assets != null) {
+                    for (i in 0 until assets.length()) {
+                        val asset = assets.getJSONObject(i)
+                        val name = asset.optString("name")
+                        if (name.endsWith(".apk", true)) {
+                            apkUrl = asset.optString("browser_download_url")
+                            apkName = name
+                            break
+                        }
+                    }
+                }
+                val installed = packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0"
+                runOnUiThread {
+                    if (apkUrl.isNullOrBlank()) {
+                        android.app.AlertDialog.Builder(this)
+                            .setTitle("Релиз найден: " + tag)
+                            .setMessage("В релизе пока нет APK-файла. Добавь APK в Assets GitHub Release.")
+                            .setPositiveButton("ПОНЯТНО", null).show()
+                    } else if (tag.removePrefix("v") == installed.removePrefix("v")) {
+                        toast("Установлена последняя версия: " + installed)
+                    } else {
+                        android.app.AlertDialog.Builder(this)
+                            .setTitle("Доступно обновление " + tag)
+                            .setMessage("Текущая версия: " + installed + "\nФайл: " + apkName + "\n\nСкачать APK и передать его установщику Android?")
+                            .setPositiveButton("СКАЧАТЬ") { _, _ -> downloadLauncherUpdate(apkUrl!!, apkName) }
+                            .setNegativeButton("ПОЗЖЕ", null).show()
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread { toast("Не удалось проверить обновления: " + (e.message ?: "ошибка сети")) }
+            } finally {
+                connection?.disconnect()
             }
-            .setNegativeButton("ПОЗЖЕ", null)
-            .show()
+        }.start()
     }
+
+    private fun showNoReleaseYet() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Обновлений пока нет")
+            .setMessage("В GitHub ещё не опубликован Release с APK. Проверка обновлений подключена; публикация начнётся после загрузки подписанной сборки.")
+            .setPositiveButton("ОТКРЫТЬ GITHUB") { _, _ ->
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Niknoynik2024/western-rush-39/releases")))
+            }
+            .setNegativeButton("ЗАКРЫТЬ", null).show()
+    }
+
+    private fun downloadLauncherUpdate(url: String, fileName: String) {
+        try {
+            val request = DownloadManager.Request(Uri.parse(url)).apply {
+                setTitle("Western Rush RP — обновление")
+                setDescription("Загрузка " + fileName)
+                setMimeType("application/vnd.android.package-archive")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(false)
+            }
+            val manager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+            pendingUpdateDownload = manager.enqueue(request)
+            toast("Загрузка обновления началась. Android попросит подтвердить установку.")
+        } catch (e: Exception) {
+            toast("Не удалось начать загрузку: " + (e.message ?: "ошибка"))
+        }
+    }
+
 
     private fun showSettings() {
         val prefs = getSharedPreferences("western_rush", MODE_PRIVATE)
@@ -313,6 +418,11 @@ class MainActivity : Activity() {
 
     private fun toast(message: String) =
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+
+    override fun onDestroy() {
+        try { unregisterReceiver(updateReceiver) } catch (_: Exception) { }
+        super.onDestroy()
+    }
 
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
