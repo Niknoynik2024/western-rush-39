@@ -3,14 +3,14 @@ config_version=5
 
 [application]
 config/name="Western Rush RP Mobile"
-run/main_scene="res://scenes/kld_map.tscn"
+run/main_scene="res://scenes/launcher.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/description="Open-world roleplay prototype set in a Kaliningrad-inspired city."
 
 [display]
 window/handheld/orientation=0
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=1600
+window/size/viewport_height=900
 window/stretch/mode="canvas_items"
 
 [rendering]
