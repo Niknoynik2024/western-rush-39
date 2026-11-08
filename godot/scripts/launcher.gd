@@ -77,7 +77,7 @@ func _build_interface() -> void:
 	server_title.position = Vector2(1132, 260)
 	server_title.size = Vector2(380, 28)
 	add_child(server_title)
-	var server_sub := _label("Калининград  •  Тестовый мир", 15, Color(0.7, 0.77, 0.86))
+	var server_sub := _label("88.119.171.76:7777", 17, Color(0.95, 0.72, 0.42))
 	server_sub.position = Vector2(1132, 294)
 	server_sub.size = Vector2(300, 24)
 	add_child(server_sub)
