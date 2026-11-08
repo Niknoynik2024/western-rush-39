@@ -41,4 +41,25 @@
 <path d="M0 735Q500 650 900 715T1600 680" fill="none" stroke="#f0b66e" stroke-width="6" opacity=".65"/>
 <g fill="#ffb45e" opacity=".35" filter="url(#blur)"><ellipse cx="320" cy="740" rx="170" ry="28"/><ellipse cx="1100" cy="735" rx="190" ry="30"/></g>
 <g fill="#ffd18b"><circle cx="200" cy="480" r="6"/><circle cx="400" cy="485" r="6"/><circle cx="780" cy="495" r="6"/><circle cx="1000" cy="490" r="6"/><circle cx="1510" cy="475" r="6"/></g>
+
+<!-- Halloween moon, flying bats and glowing pumpkins -->
+<circle cx="390" cy="205" r="112" fill="#ffd9a0" opacity=".10"/>
+<circle cx="390" cy="205" r="78" fill="#f6d8b0" opacity=".78"/>
+<circle cx="365" cy="180" r="17" fill="#b98e77" opacity=".28"/><circle cx="420" cy="226" r="23" fill="#b98e77" opacity=".24"/>
+<g fill="#090d18">
+ <path d="M520 150q-28-38-55-10 22-2 27 20-18-12-34 2 31 2 42 23 7-23 34-24-17-14-14-31z"/>
+ <path d="M1030 170q-26-35-51-9 20-2 25 18-17-10-31 3 28 2 39 21 7-21 31-22-15-13-13-29z"/>
+ <path d="M1160 255q-22-29-43-8 17-1 21 15-14-9-26 3 24 1 33 18 6-18 27-19-13-11-12-24z"/>
+ <path d="M780 105q-20-27-40-7 16-1 20 14-13-8-24 3 22 1 30 16 5-16 24-17-12-10-10-22z"/>
+</g>
+<g transform="translate(185 760)">
+ <ellipse cx="0" cy="0" rx="66" ry="52" fill="#f27a16" stroke="#9e430e" stroke-width="5"/>
+ <path d="M-12-49q4-22 22-25l8 25" fill="#3c672d" stroke="#28451f" stroke-width="4"/>
+ <path d="M-28-13l18 8-4 24-17-9zm48 0L4-5l4 24 17-9z" fill="#ffd36a"/><path d="M-14 27q15 10 30 0" fill="none" stroke="#ffd36a" stroke-width="6"/>
+</g>
+<g transform="translate(1390 735) scale(.78)">
+ <ellipse cx="0" cy="0" rx="66" ry="52" fill="#f27a16" stroke="#9e430e" stroke-width="5"/>
+ <path d="M-12-49q4-22 22-25l8 25" fill="#3c672d" stroke="#28451f" stroke-width="4"/>
+ <path d="M-28-13l18 8-4 24-17-9zm48 0L4-5l4 24 17-9z" fill="#ffd36a"/><path d="M-14 27q15 10 30 0" fill="none" stroke="#ffd36a" stroke-width="6"/>
+</g>
 </svg>
