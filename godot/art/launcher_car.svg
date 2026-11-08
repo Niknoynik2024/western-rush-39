@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+<defs><linearGradient id="body" x2="0" y2="1"><stop stop-color="#34404d"/><stop offset=".35" stop-color="#080d15"/><stop offset=".78" stop-color="#141b25"/><stop offset="1" stop-color="#05080d"/></linearGradient><linearGradient id="glass" x2="0" y2="1"><stop stop-color="#9ab4c8"/><stop offset="1" stop-color="#172536"/></linearGradient><filter id="shadow"><feGaussianBlur stdDeviation="12"/></filter></defs>
+<ellipse cx="450" cy="310" rx="360" ry="35" fill="#000" opacity=".65" filter="url(#shadow)"/>
+<path d="M115 244l35-72q20-37 78-47l130-18q65-90 145-90h125q75 0 130 85l65 24q48 18 55 70l-5 62q-4 28-42 32H142q-36-5-27-46z" fill="url(#body)" stroke="#778696" stroke-width="5"/>
+<path d="M375 111q62-75 130-75h118q52 0 104 77l-352 4z" fill="url(#glass)" stroke="#7d8d9e" stroke-width="5"/>
+<path d="M514 38v79M630 38l31 78" stroke="#111923" stroke-width="9"/>
+<path d="M110 215l90-8 25 25-7 18-110 2zM700 218l160-12 22 20-10 24-160-2z" fill="#e9f3ff"/>
+<path d="M120 218l82-6" stroke="#fff" stroke-width="8" opacity=".9"/><path d="M710 220l144-10" stroke="#fff" stroke-width="8" opacity=".9"/>
+<path d="M250 265h390" stroke="#aebdca" stroke-width="4" opacity=".4"/>
+<path d="M415 280h100v38H415z" fill="#c5d2dc" opacity=".8"/><text x="465" y="307" font-family="Arial" font-size="25" font-weight="bold" text-anchor="middle" fill="#182331">WRP 001</text>
+<g fill="#05070b" stroke="#7b8794" stroke-width="10"><circle cx="260" cy="270" r="64"/><circle cx="690" cy="270" r="64"/></g>
+<g fill="#aebbc8" stroke="#313d4b" stroke-width="7"><circle cx="260" cy="270" r="35"/><circle cx="690" cy="270" r="35"/></g>
+<g stroke="#dbe4ed" stroke-width="6"><path d="M260 238v64M228 270h64M237 247l46 46M283 247l-46 46M690 238v64M658 270h64M667 247l46 46M713 247l-46 46"/></g>
+</svg>
