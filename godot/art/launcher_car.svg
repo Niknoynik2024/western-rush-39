@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
-<defs><linearGradient id="body" x2="0" y2="1"><stop stop-color="#34404d"/><stop offset=".35" stop-color="#080d15"/><stop offset=".78" stop-color="#141b25"/><stop offset="1" stop-color="#05080d"/></linearGradient><linearGradient id="glass" x2="0" y2="1"><stop stop-color="#9ab4c8"/><stop offset="1" stop-color="#172536"/></linearGradient><filter id="shadow"><feGaussianBlur stdDeviation="12"/></filter></defs>
-<ellipse cx="450" cy="310" rx="360" ry="35" fill="#000" opacity=".65" filter="url(#shadow)"/>
-<path d="M115 244l35-72q20-37 78-47l130-18q65-90 145-90h125q75 0 130 85l65 24q48 18 55 70l-5 62q-4 28-42 32H142q-36-5-27-46z" fill="url(#body)" stroke="#778696" stroke-width="5"/>
-<path d="M375 111q62-75 130-75h118q52 0 104 77l-352 4z" fill="url(#glass)" stroke="#7d8d9e" stroke-width="5"/>
-<path d="M514 38v79M630 38l31 78" stroke="#111923" stroke-width="9"/>
-<path d="M110 215l90-8 25 25-7 18-110 2zM700 218l160-12 22 20-10 24-160-2z" fill="#e9f3ff"/>
-<path d="M120 218l82-6" stroke="#fff" stroke-width="8" opacity=".9"/><path d="M710 220l144-10" stroke="#fff" stroke-width="8" opacity=".9"/>
-<path d="M250 265h390" stroke="#aebdca" stroke-width="4" opacity=".4"/>
-<path d="M415 280h100v38H415z" fill="#c5d2dc" opacity=".8"/><text x="465" y="307" font-family="Arial" font-size="25" font-weight="bold" text-anchor="middle" fill="#182331">WRP 001</text>
-</svg>
+<defs><linearGradient id="paint" x2="0" y2="1"><stop stop-color="#3a414b"/><stop offset=".22" stop-color="#121820"/><stop offset=".72" stop-color="#030609"/><stop offset="1" stop-color="#171d25"/></linearGradient><linearGradient id="glass" x2="0" y2="1"><stop stop-color="#71879a"/><stop offset=".48" stop-color="#263748"/><stop offset="1" stop-color="#0a111a"/></linearGradient><linearGradient id="orange" x2="0" y2="1"><stop stop-color="#fff2b5"/><stop offset=".45" stop-color="#ff8b22"/><stop offset="1" stop-color="#f04408"/></linearGradient><filter id="blur"><feGaussianBlur stdDeviation="13"/></filter></defs>
+<ellipse cx="460" cy="315" rx="360" ry="25" fill="#ff650e" opacity=".34" filter="url(#blur)"/><ellipse cx="460" cy="320" rx="345" ry="24" fill="#000" opacity=".8"/>
+<path d="M75 250 112 208q23-27 77-38l120-23 100-88q39-34 100-34h117q68 0 115 59l54 68 63 19q33 10 43 43l10 44q3 24-27 34l-48 7H115q-48-3-40-49z" fill="url(#paint)" stroke="#59616c" stroke-width="5"/>
+<path d="M330 145 423 66q34-29 91-29h105q54 0 91 48l46 60z" fill="url(#glass)" stroke="#7e8b99" stroke-width="5"/><path d="M516 39 504 145M625 39l35 106" stroke="#101720" stroke-width="9"/>
+<path d="M108 209q35-23 80-26l67-9-25 36-118 20z" fill="#0a1018"/><path d="M690 202q82-20 174 1l19 20-9 20-164-4z" fill="#111923" stroke="#56616d" stroke-width="3"/>
+<path d="M754 239q8-20 23-21h27q13 1 15 21l-4 36h-31q-18-2-30-36z" fill="#05080c" stroke="#9aa4af" stroke-width="3"/><path d="M824 238q7-19 22-20h22q13 2 16 20l-3 35h-30q-18-2-27-35z" fill="#05080c" stroke="#9aa4af" stroke-width="3"/><path d="M769 227v42m12-44v43m52-42v42m12-43v43" stroke="#687481" stroke-width="3"/>
+<path d="M680 190q54-17 104-5l-8 19-85 14z" fill="url(#orange)" stroke="#ffb25a" stroke-width="3"/><path d="M116 222l76-17 20 9-8 17-88 14z" fill="#d9e8f7" stroke="#ff9b39" stroke-width="3"/>
+<path d="M95 263q180 24 335 16t381-5" fill="none" stroke="#7d8996" stroke-width="4" opacity=".45"/><path d="M250 282h390" stroke="#ff7418" stroke-width="5" opacity=".9"/><path d="M310 176l370-7" stroke="#6b7885" stroke-width="3" opacity=".5"/>
+<g fill="#05070a" stroke="#7b8792" stroke-width="9"><circle cx="260" cy="270" r="67"/><circle cx="690" cy="270" r="67"/></g><g fill="none" stroke="#aab4bf" stroke-width="7"><circle cx="260" cy="270" r="43"/><circle cx="690" cy="270" r="43"/></g><g stroke="#7d8996" stroke-width="6"><path d="M260 229v82m-41-41h82m-70-29 58 58m0-58-58 58M690 229v82m-41-41h82m-70-29 58 58m0-58-58 58"/></g><g fill="#9da8b4"><circle cx="260" cy="270" r="10"/><circle cx="690" cy="270" r="10"/></g>
+<text x="495" y="304" font-family="Arial" font-size="19" font-weight="bold" text-anchor="middle" fill="#151b22">WR RP</text></svg>
